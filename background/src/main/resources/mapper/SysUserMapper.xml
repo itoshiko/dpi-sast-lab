@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sast.user.mapper.SysUserMapper">
+
+    <resultMap id="roleResultMap" type="SysRole">
+        <result property="roleId" column="role_id"/>
+        <result property="roleName" column="role_name"/>
+    </resultMap>
+    <select id="getGroupByUserId" resultMap="roleResultMap" parameterType="int">
+        SELECT user_role.user_id user_id, role.role_id role_id, role.role_name role_name
+        FROM security.user_role,
+             security.role
+        WHERE user_role.user_id = #{uid}
+          AND user_role.role_id = role.role_id
+    </select>
+
+    <resultMap id="userResult" type="SysUser">
+        <result property="userName" column="user_name"/>
+        <result property="realName" column="real_name"/>
+        <result property="studentId" column="student_id"/>
+        <result property="uid" column="uid"/>
+        <collection property="sysRoles" javaType="ArrayList" ofType="Roles" column="uid" select="getGroupByUserId"/>
+    </resultMap>
+    <select id="selectByName" resultMap="userResult" parameterType="String">
+        SELECT *
+        FROM security.user
+        WHERE user_name = #{username}
+    </select>
+
+    <select id="selectById" resultMap="userResult" parameterType="int">
+        SELECT *
+        FROM security.user
+        WHERE uid = #{id}
+    </select>
+
+    <select id="selectByMail" parameterType="String">
+        SELECT *
+        FROM security.user
+        WHERE mail = #{mail}
+    </select>
+
+    <select id="selectByStudentId" parameterType="String">
+        SELECT *
+        FROM security.user
+        WHERE student_id = #{id}
+    </select>
+
+    <insert id="addUser" parameterType="SysUser">
+        INSERT INTO security.user (user_name, password, mail, real_name, student_id)
+        VALUES (#{userName}, #{password}, #{mail}, #{realName}, #{studentId});
+        <selectKey order="AFTER" keyProperty="uid" keyColumn="uid" resultType="int">
+            select last_insert_id()
+        </selectKey>
+
+    </insert>
+
+    <insert id="addRoleByUserId" parameterType="int">
+        INSERT INTO security.user_role (user_id, role_id)
+        VALUES
+        <foreach collection="roles" item="role" open="(" close=")" separator=",">
+            #{uid},
+            #{role.roleId}
+        </foreach>
+    </insert>
+
+    <update id="updateUserNameById">
+        UPDATE security.user
+        SET user_name = #{userName}
+        WHERE uid = #{uid}
+    </update>
+
+    <update id="updatePasswordById">
+        UPDATE security.user
+        SET password = #{password}
+        WHERE uid = #{uid}
+    </update>
+
+    <delete id="deleteUserById">
+        DELETE
+        FROM security.user_role
+        WHERE user_id = #{uid};
+        DELETE
+        FROM security.user
+        WHERE uid = #{uid};
+    </delete>
+</mapper>

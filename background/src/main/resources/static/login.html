@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login</title>
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-md-6 column">
+            <form action="/login" method="post">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" name="username" id="username"
+                           aria-describedby="usernameHelp" required>
+                    <small id="usernameHelp" class="form-text text-muted">We'll never share your information with anyone
+                        else.</small>
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Password</label>
+                    <input type="password" class="form-control" name="password" id="exampleInputPassword1" required>
+                </div>
+                <div class="form-group" id="box2">
+                    <span class="input-group-addon">verify Code</span>
+                    <label>
+                        <input type="tel" class="form-control" name="verifyCode"
+                               placeholder="Please input the verify code."
+                               required/>
+                    </label>
+                    <img id="codeImg" src="/getVerifyCode" height="50" width="120" onclick="refresh()">
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="exampleCheck1" name="remember-me">
+                    <label class="form-check-label" for="exampleCheck1">Remember me</label>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+            <div>
+                <a href="/register.html">Click to sign up</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

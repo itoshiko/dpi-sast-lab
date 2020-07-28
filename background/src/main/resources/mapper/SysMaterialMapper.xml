@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sast.material.mapper.SysMaterialMapper">
+
+    <resultMap id="tagResultMap" type="SysTag">
+        <result property="tagId" column="id"/>
+        <result property="tagName" column="name"/>
+    </resultMap>
+
+    <select id="getTagByMaterialId" resultMap="tagResultMap" parameterType="int">
+        SELECT material_tag.material_id material_id, tag.id id, tag.name name
+        FROM material.material_tag,
+             material.tag
+        WHERE material_tag.material_id = #{material_id}
+          AND material_tag.tag_id = tag.id
+    </select>
+
+    <resultMap id="materialResult" type="SysMaterial">
+        <result property="isLoanable" column="is_loanable"/>
+        <result property="needReview" column="need_review"/>
+        <result property="warehousingDate" column="warehousing_date"/>
+        <result property="storageLocation" column="storage_location"/>
+        <collection property="tags" javaType="ArrayList" ofType="SysTags" column="id" select="getTagByMaterialId"/>
+    </resultMap>
+
+    <select id="selectByNameReg" resultMap="materialResult" parameterType="String">
+        SELECT *
+        FROM material.material
+        WHERE name REGEXP #{nameReg}
+    </select>
+
+    <select id="selectByClassification" resultMap="materialResult" parameterType="String">
+        SELECT *
+        FROM material.material
+        WHERE classification REGEXP #{classification}
+    </select>
+
+    <select id="selectByTag" resultType="SysMaterial" parameterType="int">
+        SELECT *
+        FROM material.material,
+             material.material_tag
+        WHERE material.id = material_id
+          AND tag_id = #{tag}
+    </select>
+
+    <select id="selectById" resultMap="materialResult" parameterType="int">
+        SELECT *
+        FROM material.material
+        WHERE id = #{id}
+    </select>
+
+    <insert id="addMaterial" useGeneratedKeys="true" parameterType="SysMaterial">
+        INSERT INTO material.material (name, classification, price, is_loanable, need_review, warehousing_date, total,
+        remaining, storage_location)
+        VALUES (#{name}, #{classification}, #{price}, #{isLoanable}, #{needReview}, #{warehousingDate}, #{total},
+        #{remaining}, #{storageLocation});
+        <selectKey order="AFTER" keyProperty="id" keyColumn="id" resultType="int">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <insert id="addTagsByMaterialId" useGeneratedKeys="true" parameterType="int">
+        INSERT INTO material.material_tag(tag_id, material_id)
+        VALUES
+        <foreach collection="tags" item="tag" open="(" close=")" separator="),(">
+            #{tag.tagId},
+            #{id}
+        </foreach>
+    </insert>
+
+    <delete id="deleteMaterialById" parameterType="int">
+        DELETE
+        FROM material.material
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteTagsByMaterialId" parameterType="int">
+        DELETE
+        FROM material.material_tag
+        WHERE material_id = #{id}
+    </delete>
+
+    <update id="updateMaterial" parameterType="SysMaterial">
+        UPDATE material.material
+        SET name             = #{name},
+            classification   = #{classification},
+            price            = #{price},
+            is_loanable      = #{isLoanable},
+            need_review      = #{needReview},
+            warehousing_date = #{warehousingDate},
+            total            = #{total},
+            remaining        = #{remaining},
+            storage_location = #{storageLocation}
+        WHERE id = #{id}
+    </update>
+
+
+</mapper>
