@@ -4,6 +4,30 @@ spring:
     url: jdbc:mysql://localhost:3306/security?useSSL=true&useUnicode=true&characterEncoding=UTF-8
     username: root
     password: tuhanzhang
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 3
+      min-idle: 1
+      max-active: 10
+      max-wait: 60000
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 30000
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat,wall,log4j2
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=1000
+      stat-view-servlet:
+        login-username: admin
+        login-password: sastdpi
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+
+
   mail:
     username: sastdpi@163.com
     password: TPPWOAYUFRCGFOAI
@@ -30,3 +54,4 @@ server:
       force: true
   tomcat:
     uri-encoding: UTF-8
+

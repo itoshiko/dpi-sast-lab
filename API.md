@@ -9,7 +9,8 @@ method:"post"
 url:"/login"
 data:{
     "username":
-    "passwd":(encrypted？)
+    "passwd":
+    "verifyCode":
 }
 ```
 

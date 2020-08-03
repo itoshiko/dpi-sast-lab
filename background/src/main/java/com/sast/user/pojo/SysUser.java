@@ -1,13 +1,19 @@
 package com.sast.user.pojo;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 
-public class SysUser implements Serializable {
+public class SysUser implements Serializable, UserDetails {
 
-    static final long serialVersionUID = 1L;
+    static final long serialVersionUID = 7171722954972237961L;
 
     private ArrayList<SysRole> sysRoles;
+    private Set<? extends GrantedAuthority> authorities;
 
     private String userName;
     private String password;
@@ -20,7 +26,7 @@ public class SysUser implements Serializable {
         return serialVersionUID;
     }
 
-    public String getUserName() {
+    public String getUsername() {
         return userName;
     }
 
@@ -28,8 +34,38 @@ public class SysUser implements Serializable {
         this.userName = userName;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.authorities;
+    }
+
+    public void setAuthorities(Set<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
+    }
+
+
     public String getPassword() {
-        return password;
+        return this.password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     public void setPassword(String password) {

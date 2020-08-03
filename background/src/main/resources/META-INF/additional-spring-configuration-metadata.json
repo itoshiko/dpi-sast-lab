@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "token.expirationSeconds",
+      "type": "java.lang.String",
+      "description": "Description for token.expirationSeconds."
+    },
+    {
+      "name": "token.validTime",
+      "type": "java.lang.String",
+      "description": "Description for token.validTime."
+    }
+  ] }

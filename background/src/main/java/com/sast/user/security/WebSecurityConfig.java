@@ -1,5 +1,6 @@
 package com.sast.user.security;
 
+import com.sast.user.security.handler.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,11 +13,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
@@ -25,6 +28,16 @@ import javax.sql.DataSource;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Resource
+    private MyAuthenticationEntryPoint myAuthenticationEntryPoint;
+    @Resource
+    private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
+    @Resource
+    private MyAccessDeniedHandler myAccessDeniedHandler;
+    @Resource
+    private MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
+    @Resource
+    private MyLogoutSuccessHandler myLogoutSuccessHandler;
     private CustomUserDetailsService userDetailsService;
     private DataSource dataSource;
     private AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource;
@@ -50,6 +63,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.customAuthenticationProvider = customAuthenticationProvider;
     }
 
+
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
@@ -58,30 +73,36 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http.csrf().disable()
+                .httpBasic().authenticationEntryPoint(myAuthenticationEntryPoint)
+                .and()
+                .authorizeRequests()
                 // 如果有允许匿名的url，填在下面
                 .antMatchers("/getVerifyCode").permitAll()
                 .antMatchers("/register/*").permitAll()
                 .antMatchers("/swagger-ui.html").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/druid/*").permitAll()
                 .and()
                 // 设置登陆页
                 .formLogin().loginPage("/login")
-                // 设置登陆成功页
-                .defaultSuccessUrl("/").permitAll()
-                .failureUrl("/login/error")
+                .successHandler(myAuthenticationSuccessHandler)
+                .failureHandler(myAuthenticationFailureHandler)
+                .permitAll()
                 // 指定authenticationDetailsSource，增加登陆时所需的参数
                 .authenticationDetailsSource(authenticationDetailsSource)
                 .and()
-                .logout().permitAll()
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessHandler(myLogoutSuccessHandler)
+                .permitAll()
                 .and().rememberMe()
-                .tokenRepository(persistentTokenRepository())
-                // 有效时间：单位s
-                .tokenValiditySeconds(60)
                 .userDetailsService(userDetailsService);
 
-        // 关闭CSRF跨域
-        http.csrf().disable();
+        http.rememberMe().rememberMeParameter("remember-me")
+                .userDetailsService(userDetailsService).tokenValiditySeconds(1000);
+
+        http.exceptionHandling().accessDeniedHandler(myAccessDeniedHandler); // 无权访问 JSON 格式的数据
+
     }
 
     @Override
