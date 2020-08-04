@@ -21,6 +21,10 @@ public interface SysUserMapper {
 
     SysUser selectByStudentId(@Param("id") String studentId);
 
+    ArrayList<SysUser> fuzzySearch(@Param("keyword") String keyword);
+
+    ArrayList<SysUser> selectAll();
+
     void updateUserNameById(@Param("uid")int uid, @Param("userName")String userName);
 
     void updatePasswordById(@Param("uid")int uid, @Param("password")String EncryptedPassword);

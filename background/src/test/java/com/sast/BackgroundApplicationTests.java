@@ -8,6 +8,7 @@ import com.sast.material.service.MaterialService;
 import com.sast.notice.pojo.PriorityEnum;
 import com.sast.notice.pojo.SysNotice;
 import com.sast.notice.service.NoticeService;
+import com.sast.user.service.AccountService;
 import com.sast.user.service.SysUserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +26,8 @@ class BackgroundApplicationTests {
     MaterialService materialService;
     @Resource
     NoticeService noticeService;
+    @Resource
+    AccountService accountService;
     @Resource
     ObjectMapper mapper;
 
@@ -77,5 +80,12 @@ class BackgroundApplicationTests {
     @Test
     void noticeTest2() throws JsonProcessingException {
         System.out.println(noticeService.searchNotice("zz"));
+    }
+
+    @Test
+    void accountsTest() throws JsonProcessingException {
+        ArrayList<String> roles = new ArrayList<String>();
+        roles.add("ROLE_ADMIN");
+        System.out.println(accountService.fuzzySearch("郑重", roles));
     }
 }

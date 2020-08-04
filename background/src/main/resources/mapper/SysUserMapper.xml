@@ -33,16 +33,31 @@
         WHERE uid = #{id}
     </select>
 
-    <select id="selectByMail" parameterType="String">
+    <select id="selectByMail" resultMap="userResult" parameterType="String">
         SELECT *
         FROM security.user
         WHERE mail = #{mail}
     </select>
 
-    <select id="selectByStudentId" parameterType="String">
+    <select id="selectByStudentId" resultMap="userResult" parameterType="String">
         SELECT *
         FROM security.user
         WHERE student_id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="userResult">
+        SELECT *
+        FROM security.user
+        WHERE true
+    </select>
+
+    <select id="fuzzySearch" resultMap="userResult" parameterType="String">
+        SELECT *
+        FROM security.user
+        WHERE user_name REGEXP #{keyword}
+           OR real_name REGEXP #{keyword}
+           OR mail REGEXP #{keyword}
+           OR student_id REGEXP #{keyword}
     </select>
 
     <insert id="addUser" parameterType="SysUser">
