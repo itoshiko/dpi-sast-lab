@@ -1,5 +1,9 @@
 package com.sast.user.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sast.user.pojo.ResultVO;
+import com.sast.user.utils.ResultEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -7,9 +11,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -21,7 +27,10 @@ import java.io.IOException;
 public class LoginController {
     private Logger logger = LoggerFactory.getLogger(LoginController.class);
 
-    @RequestMapping("/")
+    @Resource
+    ObjectMapper mapper;
+
+    @GetMapping("/")
     public String showHome() {
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.info("当前登陆用户：" + name);
@@ -64,5 +73,12 @@ public class LoginController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @PostMapping("/login/invalid")
+    public void loginInvalid(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=utf-8");
+        response.getWriter().write(mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(ResultVO.result(ResultEnum.LOGIN_IS_OVERDUE, false)));
     }
 }

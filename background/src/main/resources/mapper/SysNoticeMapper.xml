@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sast.notice.mapper.SysNoticeMapper">
+
+    <select id="selectByName" parameterType="String" resultType="SysNotice">
+        SELECT *
+        FROM notice.notice_info
+        WHERE title REGEXP #{name}
+          AND is_deleted = false
+    </select>
+
+    <select id="selectByConditions" parameterType="java.util.HashMap" resultType="SysNotice">
+        SELECT * FROM notice.notice_info
+        <where>
+            <if test="startTime!=null">
+                <![CDATA[  AND DATE_FORMAT(publish_time, '%Y-%m-%d %H:%T:%s') >=
+                        DATE_FORMAT(#{startTime}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test="endTime!=null">
+                <![CDATA[  AND DATE_FORMAT(publish_time, '%Y-%m-%d %H:%T:%s') <=
+                        DATE_FORMAT(#{endTime} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test="priority!=null">
+                AND priority >= #{priority}
+            </if>
+            <if test="title!=null">
+                AND title REGEXP #{tile}
+            </if>
+        </where>
+        AND is_deleted = false
+    </select>
+
+    <select id="selectPinned" resultType="SysNotice">
+        SELECT *
+        FROM notice.notice_info
+        WHERE is_deleted = false
+    </select>
+
+    <select id="selectByIsPublic" parameterType="boolean" resultType="SysNotice">
+        SELECT *
+        FROM notice.notice_info
+        WHERE is_deleted = false
+          AND is_public = #{isPublic}
+    </select>
+
+    <insert id="addNotice" useGeneratedKeys="true">
+        INSERT INTO notice.notice_info (title, content, author, subject, publish_time, update_time, is_public,
+        is_pinned, is_deleted, priority)
+        VALUES (#{title}, #{content}, #{author}, #{subject}, #{publishTime}, #{updateTime}, #{isPublic}, #{isPinned},
+        #{isDeleted}, #{priority})
+        <selectKey order="AFTER" keyProperty="id" keyColumn="id" resultType="int">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE
+        FROM notice.notice_info
+        WHERE id = #{id}
+    </delete>
+
+    <update id="update">
+        UPDATE notice.notice_info
+        <set>
+            <if test="title != null and title !=''">
+                title = #{title},
+            </if>
+            <if test="content != null and content !=''">
+                content = #{content},
+            </if>
+            <if test="author != null and author !=''">
+                author = #{author},
+            </if>
+            <if test="subject != null and subject !=''">
+                subject = #{subject},
+            </if>
+            <if test="publishTime != null">
+                publish_time = #{publishTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="isPublic != null">
+                is_public = #{isPublic},
+            </if>
+            <if test="isPinned != null">
+                is_pinned = #{isPinned},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="priority != null">
+                priority = #{priority}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
+</mapper>

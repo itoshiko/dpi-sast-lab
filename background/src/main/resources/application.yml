@@ -28,6 +28,7 @@ spring:
     password:
 
 
+
   mail:
     username: sastdpi@163.com
     password: TPPWOAYUFRCGFOAI
@@ -52,6 +53,7 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+    session:
+      timeout: 1200
   tomcat:
     uri-encoding: UTF-8
-
