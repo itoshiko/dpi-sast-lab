@@ -112,17 +112,6 @@ public class SysUser implements Serializable, UserDetails {
         this.sysRoles = sysRoles;
     }
 
-    public SysUser(RegisterUser registerUser) {
-        this.mail = registerUser.getMail();
-        this.realName = registerUser.getRealName();
-        this.studentId = registerUser.getStudentId();
-        this.userName = registerUser.getUserName();
-        ArrayList<SysRole> roles = new ArrayList<SysRole>();
-        roles.add(new SysRole(1, "ROLE_NORMAL"));
-        this.sysRoles = roles;
-        this.password = null;
-    }
-
     public SysUser() {
     }
 

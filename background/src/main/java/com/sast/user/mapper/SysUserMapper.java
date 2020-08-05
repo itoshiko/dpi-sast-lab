@@ -21,6 +21,8 @@ public interface SysUserMapper {
 
     SysUser selectByStudentId(@Param("id") String studentId);
 
+    SysRole selectRoleByName(@Param("name") String name);
+
     ArrayList<SysUser> fuzzySearch(@Param("keyword") String keyword);
 
     ArrayList<SysUser> selectAll();

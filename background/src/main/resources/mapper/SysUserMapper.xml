@@ -60,6 +60,12 @@
            OR student_id REGEXP #{keyword}
     </select>
 
+    <select id="selectRoleByName" parameterType="String" resultType="SysRole">
+        SELECT *
+        FROM security.role
+        WHERE role_name = #{name}
+    </select>
+
     <insert id="addUser" parameterType="SysUser">
         INSERT INTO security.user (user_name, password, mail, real_name, student_id)
         VALUES (#{userName}, #{password}, #{mail}, #{realName}, #{studentId});
@@ -72,7 +78,7 @@
     <insert id="addRoleByUserId" parameterType="int">
         INSERT INTO security.user_role (user_id, role_id)
         VALUES
-        <foreach collection="roles" item="role" open="(" close=")" separator=",">
+        <foreach collection="roles" item="role" open="(" close=")" separator="),(">
             #{uid},
             #{role.roleId}
         </foreach>

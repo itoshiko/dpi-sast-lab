@@ -1,18 +1,17 @@
 package com.sast.user.service;
 
 import com.sast.user.mapper.SysUserMapper;
+import com.sast.user.pojo.SysRole;
 import com.sast.user.pojo.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 public class SysUserService {
 
     private SysUserMapper userMapper;
-
-    public SysUserMapper getUserMapper() {
-        return userMapper;
-    }
 
     @Autowired
     public void setUserMapper(SysUserMapper userMapper) {
@@ -28,21 +27,28 @@ public class SysUserService {
     }
 
     public boolean isMailExisted(String mail) {
-        if (userMapper.selectByMail(mail) != null) return false;
-        else return true;
+        return userMapper.selectByMail(mail) != null;
+    }
+
+    public ArrayList<SysRole> selectRoles(ArrayList<String> roles) {
+        ArrayList<SysRole> rolesList = new ArrayList<>();
+        if (!(roles == null || roles.isEmpty())) {
+            for (String role : roles) {
+                rolesList.add(userMapper.selectRoleByName(role));
+            }
+        }
+        return rolesList;
     }
 
     public boolean isStudentIdExisted(String studentId) {
-        if (userMapper.selectByStudentId(studentId) != null) return false;
-        else return true;
+        return userMapper.selectByStudentId(studentId) != null;
     }
 
     public boolean isUsernameExisted(String username) {
-        if (userMapper.selectByName(username) != null) return false;
-        else return true;
+        return userMapper.selectByName(username) != null;
     }
 
-    public void updateUsernameById(int id, String username){
+    public void updateUsernameById(int id, String username) {
         userMapper.updateUserNameById(id, username);
     }
 

@@ -21,10 +21,12 @@ public class MailUtil {
     public static void sendPassword(String target, String password) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-        helper.setSubject("Password");
-        helper.setText("Your password is: " + password);
+        helper.setSubject("欢迎使用科协物资管理系统");
+        helper.setText("这里来自精仪系科协的邮件。您已经成功注册，您的密码是: " + password);
         helper.setFrom("sastdpi@163.com");
+        helper.setCc("sastdpi@163.com");
         helper.setTo(target);
+        helper.addCc("sastdpi@163.com");
         mailSender.send(mimeMessage);
     }
 }

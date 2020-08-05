@@ -1,47 +1,50 @@
 package com.sast.user.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sast.user.pojo.RegisterUser;
-import com.sast.user.pojo.SysUser;
+import com.sast.user.service.AccountService;
 import com.sast.user.service.SysUserService;
-import com.sast.user.utils.MailUtil;
-import com.sast.user.utils.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
 
 
 @Controller
 public class RegisterController {
 
-    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     SysUserService userService;
+    AccountService accountService;
+    @Resource
+    ObjectMapper mapper;
 
     @Autowired
     public void setUserService(SysUserService userService) {
         this.userService = userService;
     }
 
-    @GetMapping("/register")
-    public String register(){
-        return ("register.html");
+    @Autowired
+    public void setUserService(AccountService accountService) {
+        this.accountService = accountService;
     }
 
     @ResponseBody
-    @PostMapping("/register/doRegister")
-    public String doRegister(RegisterUser registerUser) {
+    @PostMapping("/accounts/add")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
+    public String register(@RequestBody RegisterUser registerUser) {
+        HashMap<String,Object>resultInfo = accountService.addAccount(registerUser);
         try {
-            SysUser sysUser = new SysUser(registerUser);
-            String rawPassword = RandomString.getRandomString();
-            sysUser.setPassword(bCryptPasswordEncoder.encode(rawPassword));
-            userService.addUser(sysUser);
-            MailUtil.sendPassword(registerUser.getMail(), rawPassword);
-        }catch (Exception e){
+            return mapper.writeValueAsString(resultInfo);
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
-            return "fail";
         }
-        return "success";
+        return "failed";
     }
 }

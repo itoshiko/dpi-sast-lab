@@ -1,7 +1,6 @@
 package com.sast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sast.material.pojo.SysMaterial;
 import com.sast.material.pojo.SysTag;
@@ -9,12 +8,14 @@ import com.sast.material.service.MaterialService;
 import com.sast.notice.pojo.PriorityEnum;
 import com.sast.notice.pojo.SysNotice;
 import com.sast.notice.service.NoticeService;
-import com.sast.user.service.AccountService;
 import com.sast.user.service.SysUserService;
+import com.sast.user.service.AccountService;
+import com.sast.user.utils.MailUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -34,6 +35,11 @@ class BackgroundApplicationTests {
 
     @Test
     void contextLoads() {
+    }
+
+    @Test
+    void mailTest() throws MessagingException {
+        MailUtil.sendPassword("tuhanz@163.com", "shshudhweudhwe");
     }
 
     @Test
@@ -85,9 +91,7 @@ class BackgroundApplicationTests {
 
     @Test
     void accountsTest() throws JsonProcessingException {
-        ArrayList<String> roles = new ArrayList<String>();
-        roles.add("ROLE_ADMIN");
-        System.out.println(accountService.fuzzySearch("郑重", roles));
+        accountService.deleteAccount("tianshuo");
     }
 
 
