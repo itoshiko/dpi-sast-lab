@@ -8,8 +8,13 @@ import com.sast.user.pojo.SysRole;
 import com.sast.user.pojo.SysUser;
 import com.sast.user.utils.MailUtil;
 import com.sast.user.utils.RandomString;
+import com.sast.user.utils.StringUtil;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,6 +33,7 @@ public class AccountService {
     ObjectMapper mapper;
     @Resource
     SysUserService userService;
+    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
 
     public String fuzzySearch(String keyword, ArrayList<String> roles) throws JsonProcessingException {
@@ -111,6 +117,7 @@ public class AccountService {
             user.setPassword(bCryptPasswordEncoder.encode(rawPassword));
             user.setSysRoles(userService.selectRoles(registerUser.getRoles()));
             userService.addUser(user);
+            // TODO: 2020/8/5 可以发邮件之后注册时发送密码 
             //MailUtil.sendPassword(registerUser.getMail(), rawPassword);
         } catch (Exception e) {
             e.printStackTrace();
@@ -127,29 +134,28 @@ public class AccountService {
         return returnInfo;
     }
 
-    public HashMap<String, String> deleteAccount(String username){
+    public HashMap<String, String> deleteAccount(String username) {
         SysUser user = userService.selectByName(username);
         int authentication;
         int highestRole = getHighestRole(user);
         boolean errFlag = false;
         HashMap<String, String> returnInfo = new HashMap<>();
-        if(userHasAuthority()) authentication = 3;
+        if (userHasAuthority("ROLE_ROOT")) authentication = 3;
         else authentication = 2;
-        if(user == null) {
+        if (user == null) {
             returnInfo.put("errInfo", "user not found");
             returnInfo.put("errCode", "1");
             errFlag = true;
-        }
-        else if(highestRole >= authentication) {
+        } else if (highestRole >= authentication) {
             returnInfo.put("errInfo", "denied");
-            returnInfo.put("errCode", "2");
+            returnInfo.put("errCode", "403");
             errFlag = true;
         }
         if (errFlag) {
             returnInfo.put("success", "false");
             return returnInfo;
         }
-        try{
+        try {
             userService.deleteUserById(user.getUid());
         } catch (Exception e) {
             e.printStackTrace();
@@ -164,22 +170,138 @@ public class AccountService {
         return returnInfo;
     }
 
+    public HashMap<String, Object> updateAccount(HashMap<String, String> request) {
+        HashMap<String, Object> returnInfo = new HashMap<>();
+        ArrayList<String> errInfoList = new ArrayList<>();
+        ArrayList<String> errCodeList = new ArrayList<>();
+        boolean errFlag = false;
+        String studentId = request.get("studentId");
+        if (studentId == null || studentId.isEmpty()) {
+            errInfoList.add("invalid student id");
+            errCodeList.add("20");
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", errInfoList);
+            returnInfo.put("errCode", errCodeList);
+            return returnInfo;
+        }
+        SysUser user = userService.selectByStudentId(studentId);
+        if (user == null) {
+            errInfoList.add("invalid student id");
+            errCodeList.add("20");
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", errInfoList);
+            returnInfo.put("errCode", errCodeList);
+            return returnInfo;
+        }
+        //权限检查
+        UserDetails loginUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(loginUser.getUsername().equals(user.getUsername()))) {
+            if (!userHasAuthority("ROLE_ROOT")) {
+                errInfoList.add("denied");
+                errCodeList.add("403");
+                returnInfo.put("success", "false");
+                returnInfo.put("errInfo", errInfoList);
+                returnInfo.put("errCode", errCodeList);
+                return returnInfo;
+            }
+        }
+        //判断是否修改邮箱，邮箱是否重复以及邮箱地址是否有效
+        String mail = request.get("mail");
+        if (mail != null && !mail.equals("")) {
+            if (userService.isMailExisted(mail)) {
+                errFlag = true;
+                errCodeList.add("1");
+                errInfoList.add("mail existed");
+            } else if (MailUtil.isValidEmail(mail)) {
+                errFlag = true;
+                errCodeList.add("10");
+                errInfoList.add("invalid email");
+            } else {
+                user.setMail(mail);
+            }
+        }
+
+        //判断是否修改用户名，用户名是否重复以及是否为合法的用户名
+        String username = request.get("username");
+        if (username != null && !username.equals("")) {
+            if (userService.isUsernameExisted(username)) {
+                errFlag = true;
+                errCodeList.add("3");
+                errInfoList.add("username existed");
+            } else {
+                Authentication nowAuth = SecurityContextHolder.getContext().getAuthentication();
+                UserDetails newUser = new User(username, "", nowAuth.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(newUser, nowAuth.getCredentials(), nowAuth.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                user.setUserName(username);
+            }
+        }
+        //判断是否修改真实姓名
+        String realName = request.get("realName");
+        if (realName != null && !realName.equals("")) {
+            user.setRealName(realName);
+        }
+        userService.updateUser(user);
+        if (errFlag) {
+            returnInfo.put("success", "false");
+        } else {
+            returnInfo.put("success", "true");
+        }
+        returnInfo.put("errInfo", errInfoList);
+        returnInfo.put("errCode", errCodeList);
+        return returnInfo;
+    }
+
+    @PreAuthorize("principal.username.equals(#username)")
+    public HashMap<String, String> updatePassword(String username, String password){
+        HashMap<String, String> returnInfo = new HashMap<>();
+        if (username == null || username.isEmpty()) {
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid username");
+            returnInfo.put("errCode", "30");
+            return returnInfo;
+        }
+        SysUser user = userService.selectByName(username);
+        if(user == null){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid username");
+            returnInfo.put("errCode", "30");
+            return returnInfo;
+        }
+        //判断是否修改密码以及密码强度
+        if (password != null && !password.equals("")) {
+            if (!StringUtil.checkPassword(password)) {
+                returnInfo.put("success", "false");
+                returnInfo.put("errInfo", "password too weak");
+                returnInfo.put("errCode", "40");
+            }
+            else{
+                userService.updatePassword(user.getUid(), bCryptPasswordEncoder.encode(password));
+                returnInfo.put("success", "true");
+                returnInfo.put("errInfo", "");
+                returnInfo.put("errCode", "");
+            }
+        }
+        return returnInfo;
+    }
+
+
     private int getHighestRole(SysUser user) {
         int result = 0;
-        for(SysRole role : user.getSysRoles()) {
-            if(result < role.getRoleId()) result = role.getRoleId();
+        for (SysRole role : user.getSysRoles()) {
+            if (result < role.getRoleId()) result = role.getRoleId();
         }
         return result;
     }
 
-    private boolean userHasAuthority()
-    {
+    private boolean userHasAuthority(String authentication) {
         Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         for (GrantedAuthority grantedAuthority : authorities) {
-            if ("ROLE_ROOT".equals(grantedAuthority.getAuthority())) {
+            if (authentication.equals(grantedAuthority.getAuthority())) {
                 return true;
             }
         }
+
         return false;
     }
 

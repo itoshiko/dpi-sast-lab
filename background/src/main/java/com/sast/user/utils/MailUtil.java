@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class MailUtil {
@@ -28,5 +30,16 @@ public class MailUtil {
         helper.setTo(target);
         helper.addCc("sastdpi@163.com");
         mailSender.send(mimeMessage);
+    }
+
+    public static boolean isValidEmail(String email) {
+        boolean isExist = false;
+        Pattern p = Pattern.compile("\\w+@(\\w+.)+[a-z]{2,4}");
+        Matcher m = p.matcher(email);
+        boolean b = m.matches();
+        if (b) {
+            isExist = true;
+        }
+        return isExist;
     }
 }

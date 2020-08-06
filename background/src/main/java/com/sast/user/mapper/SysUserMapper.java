@@ -31,6 +31,10 @@ public interface SysUserMapper {
 
     void updatePasswordById(@Param("uid")int uid, @Param("password")String EncryptedPassword);
 
+    void updateMailById(@Param("uid")int uid, @Param("mail")String mail);
+
+    void updateRealNameById(@Param("uid")int uid, @Param("realName")String realName);
+
     int addUser(SysUser sysUser);
 
     void addRoleByUserId(@Param("uid") int id, @Param("roles") ArrayList<SysRole> roles);

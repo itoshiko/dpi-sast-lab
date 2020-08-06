@@ -37,14 +37,10 @@ class BackgroundApplicationTests {
     void contextLoads() {
     }
 
+    // TODO: 2020/8/5 解决发送邮件问题
     @Test
     void mailTest() throws MessagingException {
         MailUtil.sendPassword("tuhanz@163.com", "shshudhweudhwe");
-    }
-
-    @Test
-    void transactionTest() {
-        userService.updateUsernameById(1, "success");
     }
 
     @Test

@@ -96,6 +96,18 @@
         WHERE uid = #{uid}
     </update>
 
+    <update id="updateMailById">
+        UPDATE security.user
+        SET mail = #{mail}
+        WHERE uid = #{uid}
+    </update>
+
+    <update id="updateRealNameById">
+        UPDATE security.user
+        SET real_name = #{realName}
+        WHERE uid = #{uid}
+    </update>
+
     <delete id="deleteUserById">
         DELETE
         FROM security.user_role

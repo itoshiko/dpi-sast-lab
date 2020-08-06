@@ -100,10 +100,10 @@ url:"/accounts/add"
 data:{
     "username":""
     "passwd":""
-    "realname":""
+    "realName":""
     "mail":""
-    "rolename":""
-    "studentid":""
+    "roleName":""
+    "studentId":""
 }
 ```
 
@@ -151,9 +151,8 @@ url:"/accounts/delete"
 data:{
     "username":""
     "passwd":""
-    "realname":""
+    "realName":""
     "mail":""
-    "rolename":""
     "studentid":""(mandatory)
 }
 ```

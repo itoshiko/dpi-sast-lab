@@ -26,6 +26,10 @@ public class SysUserService {
         return userMapper.selectByName(name);
     }
 
+    public SysUser selectByStudentId(String id) {
+        return userMapper.selectByStudentId(id);
+    }
+
     public boolean isMailExisted(String mail) {
         return userMapper.selectByMail(mail) != null;
     }
@@ -48,8 +52,14 @@ public class SysUserService {
         return userMapper.selectByName(username) != null;
     }
 
-    public void updateUsernameById(int id, String username) {
-        userMapper.updateUserNameById(id, username);
+    public void updateUser(SysUser user) {
+        userMapper.updateUserNameById(user.getUid(), user.getUsername());
+        userMapper.updateMailById(user.getUid(), user.getMail());
+        userMapper.updateRealNameById(user.getUid(), user.getRealName());
+    }
+
+    public void updatePassword(int id, String password){
+        userMapper.updatePasswordById(id, password);
     }
 
     public void addUser(SysUser sysUser) {

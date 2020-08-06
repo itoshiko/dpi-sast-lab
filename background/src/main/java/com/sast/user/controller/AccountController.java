@@ -4,6 +4,7 @@ package com.sast.user.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sast.user.pojo.RegisterUser;
 import com.sast.user.pojo.ResultVO;
 import com.sast.user.pojo.SysUser;
 import com.sast.user.service.AccountService;
@@ -32,7 +33,7 @@ public class AccountController {
 
     @GetMapping("/account")
     @ResponseBody
-    @PreAuthorize("principal.username.equals(#username)")
+    @PreAuthorize("isAuthenticated() and principal.username.equals(#username)")
     public String accountInfo(String username) {
         try {
             SysUser user = userService.selectByName(username);
@@ -73,7 +74,7 @@ public class AccountController {
         try {
             String username = (String) mapper.readValue(request, HashMap.class).get("username");
             returnInfo = accountService.deleteAccount(username);
-            if (returnInfo.get("errCode").equals("2")) {
+            if (returnInfo.get("errCode").equals("403")) {
                 return mapper.writerWithDefaultPrettyPrinter()
                         .writeValueAsString(ResultVO.result(ResultEnum.USER_NO_ACCESS, false));
             } else return mapper.writeValueAsString(returnInfo);
@@ -83,7 +84,35 @@ public class AccountController {
         return "failed";
     }
 
-    //public String updateAccount(@RequestBody String request) {
+    @PostMapping("/accounts/update")
+    @ResponseBody
+    @PreAuthorize("isAuthenticated()")
+    public String updateAccount(@RequestBody HashMap<String, String> map) {
+        HashMap<String, Object> returnInfo;
+        try {
+            returnInfo = accountService.updateAccount(map);
+            ArrayList<String> errCodeList = (ArrayList<String>) returnInfo.get("errCode");
+            if (errCodeList.contains("403")) {
+                return mapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(ResultVO.result(ResultEnum.USER_NO_ACCESS, false));
+            } else return mapper.writeValueAsString(returnInfo);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "failed";
+    }
 
-    //}
+    @PostMapping("/accounts/update-password")
+    @ResponseBody
+    @PreAuthorize("isAuthenticated()")
+    public String updatePassword(@RequestBody HashMap<String, String> map) {
+        HashMap<String, String> returnInfo;
+        try {
+            returnInfo = accountService.updatePassword(map.get("username"), map.get("password"));
+            return mapper.writeValueAsString(returnInfo);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "failed";
+    }
 }
