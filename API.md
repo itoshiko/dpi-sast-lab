@@ -142,7 +142,7 @@ response: **(role required)**
 success时errinfo为空？
 
 #### 修改用户
-
+改密码和权限需要强制登出
 request:
 
 ```json

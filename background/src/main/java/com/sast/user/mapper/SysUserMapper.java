@@ -23,6 +23,8 @@ public interface SysUserMapper {
 
     SysRole selectRoleByName(@Param("name") String name);
 
+    String queryPasswordByUsername(@Param("username") String username);
+
     ArrayList<SysUser> fuzzySearch(@Param("keyword") String keyword);
 
     ArrayList<SysUser> selectAll();
@@ -40,4 +42,6 @@ public interface SysUserMapper {
     void addRoleByUserId(@Param("uid") int id, @Param("roles") ArrayList<SysRole> roles);
 
     void deleteUserById(@Param("uid")int uid);
+
+    void deleteRoleById(@Param("uid") int uid);
 }

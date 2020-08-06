@@ -60,10 +60,16 @@
            OR student_id REGEXP #{keyword}
     </select>
 
-    <select id="selectRoleByName" parameterType="String" resultType="SysRole">
+    <select id="selectRoleByName" parameterType="String" resultMap="roleResultMap">
         SELECT *
         FROM security.role
         WHERE role_name = #{name}
+    </select>
+
+    <select id="queryPasswordByUsername" parameterType="String" resultType="String">
+        SELECT password
+        FROM security.user
+        WHERE user_name = #{username}
     </select>
 
     <insert id="addUser" parameterType="SysUser">
@@ -115,5 +121,11 @@
         DELETE
         FROM security.user
         WHERE uid = #{uid};
+    </delete>
+
+    <delete id="deleteRoleById" parameterType="int">
+        DELETE
+        FROM security.user_role
+        WHERE user_id = #{uid};
     </delete>
 </mapper>

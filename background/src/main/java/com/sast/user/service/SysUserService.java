@@ -30,6 +30,10 @@ public class SysUserService {
         return userMapper.selectByStudentId(id);
     }
 
+    public String queryPasswordByUsername(String username){
+        return userMapper.queryPasswordByUsername(username);
+    }
+
     public boolean isMailExisted(String mail) {
         return userMapper.selectByMail(mail) != null;
     }
@@ -60,6 +64,12 @@ public class SysUserService {
 
     public void updatePassword(int id, String password){
         userMapper.updatePasswordById(id, password);
+    }
+
+    public void updateRoles(int id, ArrayList<SysRole> roles){
+        userMapper.deleteRoleById(id);
+        userMapper.addRoleByUserId(id, roles);
+
     }
 
     public void addUser(SysUser sysUser) {

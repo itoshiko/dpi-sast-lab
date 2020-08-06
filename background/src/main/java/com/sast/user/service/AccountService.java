@@ -6,10 +6,13 @@ import com.sast.user.mapper.SysUserMapper;
 import com.sast.user.pojo.RegisterUser;
 import com.sast.user.pojo.SysRole;
 import com.sast.user.pojo.SysUser;
+import com.sast.user.security.CustomUserDetailsService;
 import com.sast.user.utils.MailUtil;
 import com.sast.user.utils.RandomString;
 import com.sast.user.utils.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,6 +37,11 @@ public class AccountService {
     @Resource
     SysUserService userService;
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    public void setCustomUserDetailsService(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
 
     public String fuzzySearch(String keyword, ArrayList<String> roles) throws JsonProcessingException {
@@ -253,8 +261,13 @@ public class AccountService {
     }
 
     @PreAuthorize("principal.username.equals(#username)")
-    public HashMap<String, String> updatePassword(String username, String password){
+    public HashMap<String, String> updatePassword(String username, String password, String oldPassword){
         HashMap<String, String> returnInfo = new HashMap<>();
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+        if(!bCryptPasswordEncoder.matches(oldPassword, userDetails.getPassword())) {
+            returnInfo.put("errCode", "202");
+            return returnInfo;
+        }
         if (username == null || username.isEmpty()) {
             returnInfo.put("success", "false");
             returnInfo.put("errInfo", "invalid username");
@@ -282,6 +295,33 @@ public class AccountService {
                 returnInfo.put("errCode", "");
             }
         }
+        return returnInfo;
+    }
+
+    public HashMap<String, String> updateRoles(String username, ArrayList<String> roles){
+        HashMap<String, String> returnInfo = new HashMap<>();
+        SysUser user;
+        if (username == null || username.isEmpty()) {
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid username");
+            returnInfo.put("errCode", "30");
+            return returnInfo;
+        }
+        user = userService.selectByName(username);
+        if(user == null){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid username");
+            returnInfo.put("errCode", "30");
+            return returnInfo;
+        }
+        //如果为空，默认给予最低等级的权限
+        if(roles.isEmpty()){
+            roles.add("ROLE_NORMAL");
+        }
+        userService.updateRoles(user.getUid(), userService.selectRoles(roles));
+        returnInfo.put("success", "true");
+        returnInfo.put("errInfo", "");
+        returnInfo.put("errCode", "");
         return returnInfo;
     }
 

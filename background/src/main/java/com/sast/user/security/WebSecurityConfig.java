@@ -14,6 +14,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
@@ -62,6 +64,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void setCustomAuthenticationProvider(CustomAuthenticationProvider customAuthenticationProvider) {
         this.customAuthenticationProvider = customAuthenticationProvider;
     }
+    @Resource
+    private SessionRegistry sessionRegistry;
 
 
 
@@ -97,7 +101,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessHandler(myLogoutSuccessHandler)
                 .permitAll()
                 .and().sessionManagement()
-                .invalidSessionUrl("/login/invalid");
+                .invalidSessionUrl("/login/invalid")
+                .maximumSessions(1)
+                .sessionRegistry(sessionRegistry);
+
 
         http.rememberMe().rememberMeParameter("remember-me")
                 .tokenRepository(persistentTokenRepository())
@@ -118,6 +125,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
         return tokenRepository;
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 
     @Bean
