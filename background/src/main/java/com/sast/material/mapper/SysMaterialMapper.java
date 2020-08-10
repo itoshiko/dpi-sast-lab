@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @Mapper
 @Repository
@@ -17,6 +18,8 @@ public interface SysMaterialMapper {
     ArrayList<SysMaterial> selectByClassification(@Param("classification") String classReg);
 
     ArrayList<SysMaterial> selectByTag(@Param("tag") int tag);
+
+    ArrayList<SysMaterial> selectByConditions(HashMap<String, Object> conditions);
 
     ArrayList<SysTag> getTagByMaterialId(@Param("id") int id);
 

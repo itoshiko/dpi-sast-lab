@@ -10,6 +10,7 @@ import com.sast.notice.pojo.SysNotice;
 import com.sast.notice.service.NoticeService;
 import com.sast.user.service.SysUserService;
 import com.sast.user.service.AccountService;
+import com.sast.user.utils.DateUtil;
 import com.sast.user.utils.MailUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,7 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 @SpringBootTest
 class BackgroundApplicationTests {
@@ -45,7 +47,7 @@ class BackgroundApplicationTests {
 
     @Test
     void materialTest() {
-        SysMaterial material = new SysMaterial();
+        /*SysMaterial material = new SysMaterial();
         material.setId(6);
         material.setLoanable(true);
         material.setName("HC-05蓝牙模块");
@@ -61,7 +63,14 @@ class BackgroundApplicationTests {
         tags.add(new SysTag(4, "Bluetooth"));
         material.setTags(tags);
         System.out.println(material);
-        materialService.updateMaterial(material);
+        materialService.updateMaterial(material);*/
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        ArrayList<String> tags = new ArrayList<String>();
+        tags.add("Wireless");
+        map.put("tags", tags);
+        for(SysMaterial material : materialService.selectMaterial(map)){
+            System.out.println(material);
+        }
     }
 
     @Test
@@ -88,6 +97,16 @@ class BackgroundApplicationTests {
     @Test
     void accountsTest() throws JsonProcessingException {
         accountService.deleteAccount("tianshuo");
+    }
+
+    @Test
+    void jsonTest() throws JsonProcessingException {
+        HashMap<String, Object> data = new HashMap<String, Object>();
+        HashMap<String, String> received = new HashMap<String, String>();
+        data.put("test", true);
+        String json = mapper.writeValueAsString(data);
+        received = mapper.readValue(json, HashMap.class);
+        System.out.println(received);
     }
 
 

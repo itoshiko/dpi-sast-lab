@@ -20,6 +20,7 @@
         <result property="needReview" column="need_review"/>
         <result property="warehousingDate" column="warehousing_date"/>
         <result property="storageLocation" column="storage_location"/>
+        <result property="id" column="id"/>
         <collection property="tags" javaType="ArrayList" ofType="SysTags" column="id" select="getTagByMaterialId"/>
     </resultMap>
 
@@ -35,12 +36,47 @@
         WHERE classification REGEXP #{classification}
     </select>
 
-    <select id="selectByTag" resultType="SysMaterial" parameterType="int">
+    <select id="selectByTag" resultMap="materialResult" parameterType="int">
         SELECT *
         FROM material.material,
              material.material_tag
         WHERE material.id = material_id
           AND tag_id = #{tag}
+    </select>
+
+    <select id="selectByConditions" resultMap="materialResult" parameterType="map">
+        SELECT * FROM material.material
+        <where>
+            <if test="name != null">
+                material.name REGEXP #{name}
+            </if>
+            <if test="classification != null">
+                AND material.classification REGEXP #{classification}
+            </if>
+            <if test="priceHigh != null">
+                AND <![CDATA[ material.price <= #{priceHigh} ]]>
+            </if>
+            <if test="priceLow != null">
+                AND <![CDATA[ material.price >= #{priceLow} ]]>
+            </if>
+            <if test="isLoanable != null">
+                AND is_loanable = #{isLoanable}
+            </if>
+            <if test="needReview != null">
+                AND need_review = #{needReview}
+            </if>
+            <if test="warehousingDateHigh != null">
+                AND <![CDATA[ DATE_FORMAT(warehousing_date, '%Y-%m-%d %H:%T:%s') <=
+                        DATE_FORMAT(#{warehousingDateHigh}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test="warehousingDateLow != null">
+                AND <![CDATA[ DATE_FORMAT(warehousing_date, '%Y-%m-%d %H:%T:%s') >=
+                        DATE_FORMAT(#{warehousingDateLow}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test="remained != null">
+                AND <![CDATA[ material.remaining > 0 ]]>
+            </if>
+        </where>
     </select>
 
     <select id="selectById" resultMap="materialResult" parameterType="int">
