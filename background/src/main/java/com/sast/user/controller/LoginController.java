@@ -25,7 +25,7 @@ import java.io.IOException;
 
 @Controller
 public class LoginController {
-    private Logger logger = LoggerFactory.getLogger(LoginController.class);
+    private final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @Resource
     ObjectMapper mapper;

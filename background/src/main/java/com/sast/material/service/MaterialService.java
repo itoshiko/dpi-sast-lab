@@ -69,6 +69,10 @@ public class MaterialService {
         return result;
     }
 
+    public SysMaterial selectById(int id){
+        return materialMapper.selectById(id);
+    }
+
     private boolean hasTag(SysMaterial material, ArrayList<String> tags) {
         for (SysTag tag : material.getTags()) {
             for (String tagName : tags) {
