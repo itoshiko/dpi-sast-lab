@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sast.material.mapper.SysMaterialImgMapper">
+
+    <select id="selectInfoById" parameterType="int">
+        SELECT *
+        FROM material.material_img
+        WHERE mid = #{mid}
+    </select>
+
+    <select id="selectInfo" parameterType="int">
+        SELECT *
+        FROM material.material_img
+        WHERE id = #{id}
+    </select>
+
+    <insert id="addInfo">
+        INSERT INTO material.material_img (mid, img_uuid)
+        VALUES (#{mid}, #{imgUUID})
+    </insert>
+
+    <delete id="deleteInfo" parameterType="int">
+        DELETE
+        FROM material.material_img
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteInfoByMaterial" parameterType="int">
+        DELETE
+        FROM material.material_img
+        WHERE mid = #{mid}
+    </delete>
+
+    <update id="updateImgInfo">
+        UPDATE material.material_img
+        SET img_uuid = #{imgUUID}
+        WHERE id = #{id}
+    </update>
+
+
+</mapper>

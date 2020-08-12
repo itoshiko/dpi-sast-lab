@@ -2,15 +2,19 @@ package com.sast.material.service;
 
 import com.sast.material.mapper.SysMaterialMapper;
 import com.sast.material.pojo.SysMaterial;
+import com.sast.material.pojo.SysMaterialDoc;
+import com.sast.material.pojo.SysMaterialImg;
 import com.sast.material.pojo.SysTag;
-import com.sast.user.pojo.SysRole;
-import com.sast.user.pojo.SysUser;
+import com.sast.material.pojo.enums.FileType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ClassUtils;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class MaterialService {
@@ -19,6 +23,10 @@ public class MaterialService {
 
     public SysMaterialMapper getMaterialMapper() {
         return materialMapper;
+    }
+
+    public boolean isMaterialIdExists(int id){
+        return materialMapper.selectById(id) != null;
     }
 
     @Autowired
@@ -97,6 +105,4 @@ public class MaterialService {
         materialMapper.addMaterial(material);
         materialMapper.addTagsByMaterialId(material.getId(), material.getTags());
     }
-
-
 }

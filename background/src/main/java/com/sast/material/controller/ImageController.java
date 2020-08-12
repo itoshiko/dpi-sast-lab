@@ -1,6 +1,10 @@
 package com.sast.material.controller;
 
-import com.sast.user.controller.LoginController;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sast.material.pojo.enums.FileType;
+import com.sast.material.service.MaterialExtraService;
+import com.sast.material.service.MaterialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -13,21 +17,26 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
+import javax.annotation.Resource;
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.UUID;
 
 @Controller
 public class ImageController {
 
     private final Logger logger = LoggerFactory.getLogger(ImageController.class);
+
+    @Resource
+    MaterialExtraService materialExtraService;
+    @Resource
+    MaterialService materialService;
+    @Resource
+    ObjectMapper mapper;
 
     @Bean
     public BufferedImageHttpMessageConverter bufferedImageHttpMessageConverter() {
@@ -52,21 +61,16 @@ public class ImageController {
         }
     }
 
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/materials/mat-img-up")
     @ResponseBody
-    public String uploadMaterialImage(@RequestParam("img") CommonsMultipartFile file, @RequestParam("mat_id") int materialId, HttpServletRequest request) throws IOException {
-        String path = Objects.requireNonNull(Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("")).getPath();
-        String uuid = UUID.randomUUID().toString().replaceAll("-","");
-        File realPath = new File(path + "static/img/materials");
-        if (!realPath.exists()) {
-            realPath.mkdir();
+    public String uploadMaterialImage(@RequestParam("img") CommonsMultipartFile file, @RequestParam("mat_id") int materialId) throws JsonProcessingException {
+        HashMap<String, String> returnInfo = materialExtraService.uploadMaterialFile(file, materialId, FileType.IMAGE);
+        if (returnInfo.get("success").equals("true")) {
+            logger.info("Image of material with id = " + materialId + " upload successfully, uuid = " + returnInfo.get("uuid"));
+        } else {
+            logger.info("Image upload failed: " + returnInfo.get("errInfo"));
         }
-        //通过CommonsMultipartFile的方法直接写文件
-        file.transferTo(new File(realPath + "/" + uuid));
-        logger.info("Image of material with id = " + materialId +" upload successfully, uuid = " + uuid);
-        return "success";
+        return mapper.writeValueAsString(returnInfo);
     }
-
-
 }
