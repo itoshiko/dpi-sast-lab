@@ -37,11 +37,25 @@ public class MaterialExtraService {
     }
 
     public void deleteImgInfo(int id) {
-        sysMaterialImgMapper.deleteInfo(id);
+        SysMaterialImg target = sysMaterialImgMapper.selectInfo(id);
+        String path = Objects.requireNonNull(Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("")).getPath();
+        path = path + "static/img/materials/" + target.getImgUUID();
+        File targetFile = new File(path);
+        if(targetFile.delete()){
+            sysMaterialImgMapper.deleteInfo(id);
+        }
     }
 
     public void deleteImgInfoByMaterial(int mid) {
-        sysMaterialImgMapper.deleteInfoByMaterial(mid);
+        ArrayList<SysMaterialImg> target = sysMaterialImgMapper.selectInfoById(mid);
+        for(SysMaterialImg img : target){
+            String path = Objects.requireNonNull(Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("")).getPath();
+            path = path + "static/img/materials/" + img.getImgUUID();
+            File targetFile = new File(path);
+            if(targetFile.delete()){
+                sysMaterialImgMapper.deleteInfo(img.getId());
+            }
+        }
     }
 
     public void updateImgInfo(String imgUUID, int id) {
@@ -63,11 +77,25 @@ public class MaterialExtraService {
     }
 
     public void deleteDocInfo(int id) {
-        sysMaterialDocMapper.deleteInfo(id);
+        SysMaterialDoc target = sysMaterialDocMapper.selectInfo(id);
+        String path = Objects.requireNonNull(Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("")).getPath();
+        path = path + "static/doc/materials/" + target.getDocUUID();
+        File targetFile = new File(path);
+        if(targetFile.delete()){
+            sysMaterialDocMapper.deleteInfo(id);
+        }
     }
 
     public void deleteDocInfoByMaterial(int mid) {
-        sysMaterialDocMapper.deleteInfoByMaterial(mid);
+        ArrayList<SysMaterialDoc> target = sysMaterialDocMapper.selectInfoById(mid);
+        for(SysMaterialDoc doc : target){
+            String path = Objects.requireNonNull(Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("")).getPath();
+            path = path + "static/doc/materials/" + doc.getDocUUID();
+            File targetFile = new File(path);
+            if(targetFile.delete()){
+                sysMaterialDocMapper.deleteInfo(doc.getId());
+            }
+        }
     }
 
     public void updateDocInfo(String imgUUID, String docType, int id) {

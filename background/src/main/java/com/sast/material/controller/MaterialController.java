@@ -60,4 +60,28 @@ public class MaterialController {
             return "failed";
         }
     }
+
+    @PostMapping("/materials/delete")
+    @ResponseBody
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
+    public String deleteMaterial(@RequestBody HashMap<String, String> map) {
+        try {
+            return mapper.writeValueAsString(materialService.deleteMaterialById(Integer.parseInt(map.get("materialId"))));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "failed";
+        }
+    }
+
+    @PostMapping("/materials/add")
+    @ResponseBody
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
+    public String addMaterial(@RequestBody SysMaterial material){
+        try {
+            return mapper.writeValueAsString(materialService.addMaterial(material));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "failed";
+        }
+    }
 }

@@ -2,22 +2,20 @@ package com.sast.material.service;
 
 import com.sast.material.mapper.SysMaterialMapper;
 import com.sast.material.pojo.SysMaterial;
-import com.sast.material.pojo.SysMaterialDoc;
-import com.sast.material.pojo.SysMaterialImg;
 import com.sast.material.pojo.SysTag;
-import com.sast.material.pojo.enums.FileType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ClassUtils;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 @Service
 public class MaterialService {
+
+    @Resource
+    MaterialExtraService materialExtraService;
 
     private SysMaterialMapper materialMapper;
 
@@ -35,7 +33,7 @@ public class MaterialService {
     }
 
     public ArrayList<SysMaterial> selectMaterial(HashMap<String, Object> request) {
-        HashMap<String, Object> conditions = new HashMap<String, Object>();
+        HashMap<String, Object> conditions = new HashMap<>();
         if (request.get("name") != null && ((String)request.get("name")).length() > 0) {
             conditions.put("name", request.get("name"));
         }
@@ -96,13 +94,43 @@ public class MaterialService {
         materialMapper.addTagsByMaterialId(material.getId(), material.getTags());
     }
 
-    public void deleteMaterialById(int id) {
-        materialMapper.deleteMaterialById(id);
-        materialMapper.deleteTagsByMaterialId(id); //虽然有级联删除，但是感觉还是这样子保险一点
+    public HashMap<String, String> deleteMaterialById(int id) {
+        HashMap<String, String> returnInfo = new HashMap<>();
+        if(!isMaterialIdExists(id)){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid id");
+            return returnInfo;
+        }
+        try{
+            materialExtraService.deleteDocInfoByMaterial(id);
+            materialExtraService.deleteImgInfoByMaterial(id);
+            materialMapper.deleteTagsByMaterialId(id); //虽然有级联删除，但是感觉还是这样子保险一点
+            materialMapper.deleteMaterialById(id);
+        } catch(Exception e){
+            e.printStackTrace();
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "unexpected error");
+            return returnInfo;
+        }
+        returnInfo.put("success", "true");
+        returnInfo.put("errInfo", "");
+        return returnInfo;
     }
 
-    public void addMaterial(SysMaterial material) {
-        materialMapper.addMaterial(material);
-        materialMapper.addTagsByMaterialId(material.getId(), material.getTags());
+    public HashMap<String, String> addMaterial(SysMaterial material) {
+        HashMap<String, String> returnInfo = new HashMap<>();
+        try{
+            materialMapper.addMaterial(material);
+            if(!material.getTags().isEmpty()){
+                materialMapper.addTagsByMaterialId(material.getId(), material.getTags());
+            }
+        } catch(Exception e){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "unexpected error");
+            return returnInfo;
+        }
+        returnInfo.put("success", "true");
+        returnInfo.put("errInfo", "");
+        return returnInfo;
     }
 }

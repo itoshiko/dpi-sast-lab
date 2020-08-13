@@ -40,7 +40,7 @@ public class FileController {
     @Resource
     ObjectMapper mapper;
 
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/materials/mat-doc-up")
     @ResponseBody
     public String uploadMaterialImage(@RequestParam("doc") CommonsMultipartFile file, @RequestParam("mat_id") int materialId) throws JsonProcessingException {
