@@ -8,6 +8,12 @@
         WHERE mid = #{mid}
     </select>
 
+    <select id="selectInfoByUUID" parameterType="String" resultType="SysMaterialDoc">
+        SELECT *
+        FROM material.material_doc
+        WHERE doc_uuid = #{uuid}
+    </select>
+
     <select id="selectInfo" parameterType="int" resultType="SysMaterialDoc">
         SELECT *
         FROM material.material_doc
@@ -15,8 +21,8 @@
     </select>
 
     <insert id="addInfo">
-        INSERT INTO material.material_doc (mid, doc_uuid, doc_type)
-        VALUES (#{mid}, #{docUUID}, #{docType})
+        INSERT INTO material.material_doc (mid, doc_uuid, doc_type, doc_name)
+        VALUES (#{mid}, #{docUUID}, #{docType}, #{docName})
     </insert>
 
     <delete id="deleteInfo" parameterType="int">

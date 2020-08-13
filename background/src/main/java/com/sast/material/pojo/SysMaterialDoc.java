@@ -10,6 +10,7 @@ public class SysMaterialDoc {
     private int mid;
     private String docUUID;
     private String docType;
+    private String docName;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
@@ -45,6 +46,14 @@ public class SysMaterialDoc {
 
     public void setDocType(String docType) {
         this.docType = docType;
+    }
+
+    public String getDocName() {
+        return docName;
+    }
+
+    public void setDocName(String docName) {
+        this.docName = docName;
     }
 
     @Override

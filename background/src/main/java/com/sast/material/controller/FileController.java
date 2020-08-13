@@ -2,6 +2,7 @@ package com.sast.material.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sast.material.pojo.SysMaterialDoc;
 import com.sast.material.pojo.SysMaterialImg;
 import com.sast.material.pojo.enums.FileType;
 import com.sast.material.service.MaterialExtraService;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -51,26 +53,28 @@ public class FileController {
         return mapper.writeValueAsString(returnInfo);
     }
 
-    @RequestMapping("/materials/doc")
+    @GetMapping("/materials/doc")
     @ResponseBody
     public void getMaterialDoc(@RequestBody HashMap<String, String> map) throws IOException {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         assert requestAttributes != null;
         HttpServletResponse response = requestAttributes.getResponse();
-        //需要下载的图片的地址
         String uuid = map.get("uuid");
+        SysMaterialDoc doc = materialExtraService.selectDocByUUID(uuid);
+        if (doc == null) return;
         String path = Objects.requireNonNull(Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("")).getPath();
         path = path + "static/doc/materials/";
         //设置response响应头
-        // TODO: 2020/8/13 文件类型：下载，数据库储存
+        // TODO: 2020/8/13 上传的文件只能是pdf, txt, md
         assert response != null;
         response.reset(); //设置页面不缓存，清空buffer
         response.setCharacterEncoding("UTF-8");
         response.setContentType("multipart/form-data"); //二进制传输数据
         File file = new File(path, uuid);
-        String type = new MimetypesFileTypeMap().getContentType(file);
+        String type = doc.getDocType();
         response.setHeader("Content-type", type);
-        response.setHeader("Content-Disposition", "attachment;filename=" + uuid);
+        // TODO: 2020/8/13 下载文件中文文件名乱码
+        response.setHeader("Content-Disposition", "attachment;fileName=" + new String(doc.getDocName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
         //读取文件：输入流
         InputStream inputStream = new FileInputStream(file);
         //写出文件：输出流

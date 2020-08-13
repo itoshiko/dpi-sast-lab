@@ -13,9 +13,11 @@ public interface SysMaterialDocMapper {
 
     public ArrayList<SysMaterialDoc> selectInfoById(@Param("mid") int mid);
 
+    public SysMaterialDoc selectInfoByUUID(@Param("uuid") String uuid);
+
     public SysMaterialDoc selectInfo(@Param("id") int id);
 
-    public void addInfo(@Param("mid") int mid, @Param("docUUID") String docUUID, @Param("docType") String docType);
+    public void addInfo(@Param("mid") int mid, @Param("docUUID") String docUUID, @Param("docType") String docType, @Param("docName") String docName);
 
     public void deleteInfo(@Param("id") int id);
 

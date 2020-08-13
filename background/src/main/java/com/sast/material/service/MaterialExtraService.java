@@ -54,8 +54,12 @@ public class MaterialExtraService {
         return sysMaterialDocMapper.selectInfoById(mid);
     }
 
-    public void addDocInfo(int mid, String docUUID, String docType) {
-        sysMaterialDocMapper.addInfo(mid, docUUID, docType);
+    public SysMaterialDoc selectDocByUUID(String uuid) {
+        return sysMaterialDocMapper.selectInfoByUUID(uuid);
+    }
+
+    public void addDocInfo(int mid, String docUUID, String docType, String docName) {
+        sysMaterialDocMapper.addInfo(mid, docUUID, docType, docName);
     }
 
     public void deleteDocInfo(int id) {
@@ -71,7 +75,8 @@ public class MaterialExtraService {
             sysMaterialDocMapper.updateDocInfo(id, imgUUID, docType);
         }
     }
-    public SysMaterialExtra getMaterialExtra(int mid){
+
+    public SysMaterialExtra getMaterialExtra(int mid) {
         SysMaterialExtra sysMaterialExtra = new SysMaterialExtra();
         sysMaterialExtra.setMid(mid);
         sysMaterialExtra.setImg(sysMaterialImgMapper.selectInfoById(mid));
@@ -79,22 +84,22 @@ public class MaterialExtraService {
         return sysMaterialExtra;
     }
 
-    public HashMap<String, String> uploadMaterialFile(CommonsMultipartFile file, int materialId, FileType type){
+    public HashMap<String, String> uploadMaterialFile(CommonsMultipartFile file, int materialId, FileType type) {
         HashMap<String, String> returnInfo = new HashMap<>();
         if (file.isEmpty()) {
             returnInfo.put("success", "false");
             returnInfo.put("errInfo", "empty file");
             return returnInfo;
         }
-        if(!materialService.isMaterialIdExists(materialId)){
+        if (!materialService.isMaterialIdExists(materialId)) {
             returnInfo.put("success", "false");
             returnInfo.put("errInfo", "invalid material id");
             return returnInfo;
         }
         String path = Objects.requireNonNull(Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("")).getPath();
-        String uuid = UUID.randomUUID().toString().replaceAll("-","");
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         File realPath = null;
-        if(type.equals(FileType.IMAGE)) {
+        if (type.equals(FileType.IMAGE)) {
             realPath = new File(path + "static/img/materials");
             if (!realPath.exists()) {
                 realPath.mkdir();
@@ -111,15 +116,14 @@ public class MaterialExtraService {
                     e.printStackTrace();
                 }
             }
-        }
-        else if(type.equals(FileType.DOC)) {
+        } else if (type.equals(FileType.DOC)) {
             realPath = new File(path + "static/doc/materials");
             if (!realPath.exists()) {
                 realPath.mkdir();
             }
             try {
                 file.transferTo(new File(realPath + "/" + uuid));
-                addDocInfo(materialId, uuid, file.getContentType());
+                addDocInfo(materialId, uuid, file.getContentType(), file.getOriginalFilename());
                 returnInfo.put("success", "true");
                 returnInfo.put("uuid", uuid);
                 returnInfo.put("errInfo", "");
