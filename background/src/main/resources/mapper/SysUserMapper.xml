@@ -66,6 +66,11 @@
         WHERE role_name = #{name}
     </select>
 
+    <select id="selectAllRoles" resultType="SysRole">
+        SELECT *
+        FROM security.role
+    </select>
+
     <select id="queryPasswordByUsername" parameterType="String" resultType="String">
         SELECT password
         FROM security.user
@@ -81,12 +86,32 @@
 
     </insert>
 
+    <insert id="batchAddUser" useGeneratedKeys="true" keyProperty="uid">
+        INSERT INTO security.user (user_name, password, mail, real_name, student_id)
+        VALUES
+        <foreach collection="userList" item="user" open="(" close=")" separator="),(">
+            #{user.username},
+            #{user.encryptedPassword},
+            #{user.mail},
+            #{user.realName},
+            #{user.studentId}
+        </foreach>
+    </insert>
+
     <insert id="addRoleByUserId" parameterType="int">
         INSERT INTO security.user_role (user_id, role_id)
         VALUES
         <foreach collection="roles" item="role" open="(" close=")" separator="),(">
             #{uid},
             #{role.roleId}
+        </foreach>
+    </insert>
+
+    <insert id="batchAddRole" useGeneratedKeys="true">
+        INSERT INTO security.user_role (user_id, role_id) VALUES
+        <foreach collection="roleList" item="role" open="(" close=")" separator="),(">
+            #{role.i},
+            #{role.j}
         </foreach>
     </insert>
 

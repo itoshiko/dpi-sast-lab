@@ -65,7 +65,6 @@ public class FileController {
         String path = Objects.requireNonNull(Objects.requireNonNull(ClassUtils.getDefaultClassLoader()).getResource("")).getPath();
         path = path + "static/doc/materials/";
         //设置response响应头
-        // TODO: 2020/8/13 上传的文件只能是pdf, txt, md
         assert response != null;
         response.reset(); //设置页面不缓存，清空buffer
         response.setCharacterEncoding("UTF-8");

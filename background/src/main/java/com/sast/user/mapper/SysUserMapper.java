@@ -1,7 +1,9 @@
 package com.sast.user.mapper;
 
+import com.sast.form.pojo.ExcelUser;
 import com.sast.user.pojo.SysRole;
 import com.sast.user.pojo.SysUser;
+import com.sast.user.service.SysUserService;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -23,6 +25,8 @@ public interface SysUserMapper {
 
     SysRole selectRoleByName(@Param("name") String name);
 
+    ArrayList<SysRole> selectAllRoles();
+
     String queryPasswordByUsername(@Param("username") String username);
 
     ArrayList<SysUser> fuzzySearch(@Param("keyword") String keyword);
@@ -38,6 +42,10 @@ public interface SysUserMapper {
     void updateRealNameById(@Param("uid")int uid, @Param("realName")String realName);
 
     int addUser(SysUser sysUser);
+
+    int batchAddUser(@Param("userList") ArrayList<ExcelUser> userList);
+
+    int batchAddRole(@Param("roleList") ArrayList<SysUserService.IntPair> role);
 
     void addRoleByUserId(@Param("uid") int id, @Param("roles") ArrayList<SysRole> roles);
 

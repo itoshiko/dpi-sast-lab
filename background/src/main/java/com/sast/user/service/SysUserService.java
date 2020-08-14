@@ -1,5 +1,6 @@
 package com.sast.user.service;
 
+import com.sast.form.pojo.ExcelUser;
 import com.sast.user.mapper.SysUserMapper;
 import com.sast.user.pojo.SysRole;
 import com.sast.user.pojo.SysUser;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @Service
 public class SysUserService {
@@ -48,6 +50,10 @@ public class SysUserService {
         return rolesList;
     }
 
+    public ArrayList<SysRole> selectAllRoles() {
+        return userMapper.selectAllRoles();
+    }
+
     public boolean isStudentIdExisted(String studentId) {
         return userMapper.selectByStudentId(studentId) != null;
     }
@@ -77,7 +83,54 @@ public class SysUserService {
         userMapper.addRoleByUserId(sysUser.getUid(), sysUser.getSysRoles());
     }
 
+    public int batchAddUser(ArrayList<ExcelUser> userList){
+        if(userList.isEmpty()) return 0;
+        ArrayList<ExcelUser> userListFinal = new ArrayList<>();
+        for(ExcelUser user: userList){
+            if(user.getErrInfo().equals("")) userListFinal.add(user);
+        }
+        int userAdded = userMapper.batchAddUser(userListFinal);
+        ArrayList<SysRole> userRoles = selectAllRoles();
+        HashMap<String, Integer> roleMap = new HashMap<String, Integer>();
+        for(SysRole role : userRoles){
+            roleMap.put(role.getRoleName(), role.getRoleId());
+        }
+        ArrayList<IntPair> rolesToAdd = new ArrayList<>();
+        for(ExcelUser user : userListFinal){
+            rolesToAdd.add(new IntPair(user.getUid(), roleMap.get("ROLE_NORMAL")));
+        }
+        userMapper.batchAddRole(rolesToAdd);
+        return userAdded;
+    }
+
     public void deleteUserById(int id) {
         userMapper.deleteUserById(id);
+    }
+
+    public class IntPair{
+        int i;
+        int j;
+
+        public int getI() {
+            return i;
+        }
+
+        public int getJ() {
+            return j;
+        }
+
+        public IntPair(int i, int j) {
+            this.i = i;
+            this.j = j;
+        }
+
+        public IntPair() {
+        }
+    }
+
+    public boolean checkUser(ExcelUser user) {
+        if(isUsernameExisted(user.getUsername())) return false;
+        if(isMailExisted(user.getMail())) return false;
+        return !isStudentIdExisted(user.getStudentId());
     }
 }

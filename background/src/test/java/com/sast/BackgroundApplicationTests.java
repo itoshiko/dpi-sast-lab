@@ -2,15 +2,14 @@ package com.sast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sast.form.service.FormService;
 import com.sast.material.pojo.SysMaterial;
-import com.sast.material.pojo.SysTag;
 import com.sast.material.service.MaterialService;
 import com.sast.notice.pojo.PriorityEnum;
 import com.sast.notice.pojo.SysNotice;
 import com.sast.notice.service.NoticeService;
-import com.sast.user.service.SysUserService;
 import com.sast.user.service.AccountService;
-import com.sast.user.utils.DateUtil;
+import com.sast.user.service.SysUserService;
 import com.sast.user.utils.MailUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +31,8 @@ class BackgroundApplicationTests {
     NoticeService noticeService;
     @Resource
     AccountService accountService;
+    @Resource
+    FormService formService;
     @Resource
     ObjectMapper mapper;
 
@@ -107,6 +108,11 @@ class BackgroundApplicationTests {
         String json = mapper.writeValueAsString(data);
         received = mapper.readValue(json, HashMap.class);
         System.out.println(received);
+    }
+
+    @Test
+    public void excel() {
+        formService.simpleWrite(formService.readForm());
     }
 
 
