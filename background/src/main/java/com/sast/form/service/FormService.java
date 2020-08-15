@@ -1,8 +1,10 @@
 package com.sast.form.service;
 
 import com.alibaba.excel.EasyExcel;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sast.form.pojo.ExcelUser;
+import com.sast.material.pojo.SysMaterial;
+import com.sast.material.service.MaterialService;
 import com.sast.user.pojo.SysUser;
 import com.sast.user.service.AccountService;
 import com.sast.user.service.SysUserService;
@@ -11,9 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class FormService {
@@ -22,6 +27,12 @@ public class FormService {
     SysUserService userService;
     @Resource
     AccountService accountService;
+    @Resource
+    MaterialService materialService;
+    @Resource
+    ObjectMapper mapper;
+
+    private static String CONTENT = null;
 
     public ArrayList<ExcelUser> importUserDataFromExcel(MultipartFile file) throws IOException {
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet
@@ -30,9 +41,41 @@ public class FormService {
         return userDataListener.getList();
     }
 
-    public void writeUserDataToExcel(ArrayList<ExcelUser> data) {
-        String fileName = "D:\\Java_dev\\dpi-sast-lab\\background\\target\\classes\\static\\doc" + File.separator + "demo2.xlsx";
-        // 这里 需要指定写用哪个class去写，然后写到第一个sheet，名字为模板 然后文件流会自动关闭
-        EasyExcel.write(fileName, ExcelUser.class).sheet("模板").doWrite(data);
+    public void writeDataToExcel(HttpServletResponse response, int type) throws IOException {
+        //导出用户数据
+        ArrayList result = null;
+        if(type == 1){
+            result = accountService.fuzzySearch("", new ArrayList<String>());
+            CONTENT = "user";
+        }
+        else if(type == 2){
+            result = materialService.selectMaterial(new HashMap<>());
+            CONTENT = "material";
+        }
+        try {
+            response.setContentType("application/vnd.ms-excel");
+            response.setCharacterEncoding("utf-8");
+            String fileName = URLEncoder.encode(CONTENT + "_data", StandardCharsets.UTF_8);
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+            if(type == 1){
+                EasyExcel.write(response.getOutputStream(), SysUser.class).autoCloseStream(Boolean.FALSE).sheet("user")
+                        .doWrite(result);
+            }
+            else if (type == 2){
+                // 这里需要设置不关闭流
+                EasyExcel.write(response.getOutputStream(), SysMaterial.class).autoCloseStream(Boolean.FALSE).sheet("user")
+                        .doWrite(result);
+            }
+
+        } catch (Exception e) {
+            // 重置response
+            response.reset();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("success", "fail");
+            map.put("message", "extract failed " + e.getMessage());
+            response.getWriter().println(mapper.writeValueAsString(map));
+        }
     }
 }

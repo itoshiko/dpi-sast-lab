@@ -1,23 +1,39 @@
 package com.sast.material.pojo;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.sast.form.service.TagListConverter;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class SysMaterial implements Serializable {
 
+    @ExcelIgnore
     static final long serialVersionUID = 1L;
 
+    @ExcelProperty(value = "ID", index = 1)
     private int id;
+    @ExcelProperty(value = "名称", index = 0)
     private String name;
+    @ExcelProperty(value = "分类号", index = 2)
     private String classification;
+    @ExcelProperty(value = "单价", index = 3)
     private int price;
-    private boolean isLoanable;
+    @ExcelProperty(value = "是否可外借", index = 6)
+    private boolean canLoan;
+    @ExcelProperty(value = "外借是否需要审核", index = 7)
     private boolean needReview;
+    @ExcelProperty(value = "入库日期", index = 8)
     private Date warehousingDate;
+    @ExcelProperty(value = "总量", index = 4)
     private int total;
+    @ExcelProperty(value = "在库数量", index = 5)
     private int remaining;
+    @ExcelProperty(value = "存放位置", index = 9)
     private String storageLocation;
+    @ExcelProperty(value = "标签", index = 10, converter = TagListConverter.class)
     private ArrayList<SysTag> tags;
 
     public static long getSerialVersionUID() {
@@ -56,12 +72,12 @@ public class SysMaterial implements Serializable {
         this.price = price;
     }
 
-    public boolean isLoanable() {
-        return isLoanable;
+    public boolean isCanLoan() {
+        return canLoan;
     }
 
-    public void setLoanable(boolean loanable) {
-        isLoanable = loanable;
+    public void setCanLoan(boolean canLoan) {
+        this.canLoan = canLoan;
     }
 
     public boolean isNeedReview() {
@@ -119,7 +135,7 @@ public class SysMaterial implements Serializable {
                 ", name='" + name + '\'' +
                 ", classification='" + classification + '\'' +
                 ", price=" + price +
-                ", isLoanable=" + isLoanable +
+                ", isLoanable=" + canLoan +
                 ", needReview=" + needReview +
                 ", warehousingDate=" + warehousingDate +
                 ", total=" + total +

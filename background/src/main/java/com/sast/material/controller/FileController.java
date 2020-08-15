@@ -53,7 +53,7 @@ public class FileController {
         return mapper.writeValueAsString(returnInfo);
     }
 
-    @GetMapping("/materials/doc")
+    @PostMapping("/materials/doc")
     @ResponseBody
     public void getMaterialDoc(@RequestBody HashMap<String, String> map) throws IOException {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

@@ -16,7 +16,7 @@
     </select>
 
     <resultMap id="materialResult" type="SysMaterial">
-        <result property="isLoanable" column="is_loanable"/>
+        <result property="canLoan" column="is_loanable"/>
         <result property="needReview" column="need_review"/>
         <result property="warehousingDate" column="warehousing_date"/>
         <result property="storageLocation" column="storage_location"/>
@@ -59,8 +59,8 @@
             <if test="priceLow != null">
                 AND <![CDATA[ material.price >= #{priceLow} ]]>
             </if>
-            <if test="isLoanable != null">
-                AND is_loanable = #{isLoanable}
+            <if test="canLoan != null">
+                AND is_loanable = #{canLoan}
             </if>
             <if test="needReview != null">
                 AND need_review = #{needReview}
@@ -88,7 +88,7 @@
     <insert id="addMaterial" useGeneratedKeys="true" parameterType="SysMaterial">
         INSERT INTO material.material (name, classification, price, is_loanable, need_review, warehousing_date, total,
         remaining, storage_location)
-        VALUES (#{name}, #{classification}, #{price}, #{isLoanable}, #{needReview}, #{warehousingDate}, #{total},
+        VALUES (#{name}, #{classification}, #{price}, #{canLoan}, #{needReview}, #{warehousingDate}, #{total},
         #{remaining}, #{storageLocation});
         <selectKey order="AFTER" keyProperty="id" keyColumn="id" resultType="int">
             select last_insert_id()
@@ -121,7 +121,7 @@
         SET name             = #{name},
             classification   = #{classification},
             price            = #{price},
-            is_loanable      = #{isLoanable},
+            is_loanable      = #{canLoan},
             need_review      = #{needReview},
             warehousing_date = #{warehousingDate},
             total            = #{total},

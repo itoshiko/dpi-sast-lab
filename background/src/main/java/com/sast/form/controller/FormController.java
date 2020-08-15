@@ -2,8 +2,10 @@ package com.sast.form.controller;
 
 import com.alibaba.excel.EasyExcel;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sast.form.service.FormService;
 import com.sast.user.pojo.SysUser;
 import com.sast.user.service.AccountService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,29 +27,20 @@ public class FormController {
     @Resource
     ObjectMapper mapper;
     @Resource
-    AccountService accountService;
+    FormService formService;
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     @GetMapping("accounts/extract")
-    public void download(HttpServletResponse response) throws IOException {
-        ArrayList<SysUser> result = accountService.fuzzySearch("", new ArrayList<String>());
-        try {
-            response.setContentType("application/vnd.ms-excel");
-            response.setCharacterEncoding("utf-8");
-            String fileName = URLEncoder.encode("user_data", StandardCharsets.UTF_8);
-            response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-            // 这里需要设置不关闭流
-            EasyExcel.write(response.getOutputStream(), SysUser.class).autoCloseStream(Boolean.FALSE).sheet("user")
-                    .doWrite(result);
-        } catch (Exception e) {
-            // 重置response
-            response.reset();
-            response.setContentType("application/json");
-            response.setCharacterEncoding("utf-8");
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("success", "fail");
-            map.put("message", "extract failed " + e.getMessage());
-            response.getWriter().println(mapper.writeValueAsString(map));
-        }
+    @ResponseBody
+    public void extractUserData(HttpServletResponse response) throws IOException {
+        formService.writeDataToExcel(response, 1);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
+    @GetMapping("materials/extract")
+    @ResponseBody
+    public void extractMaterialData(HttpServletResponse response) throws IOException {
+        formService.writeDataToExcel(response, 2);
     }
 
 
@@ -70,8 +63,7 @@ public class FormController {
             String type = file.getContentType();
             assert type != null;
             return type.equals("application/vnd.ms-excel") ||
-                    type.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
-                    type.equals("text/csv");
+                    type.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
     }
 }

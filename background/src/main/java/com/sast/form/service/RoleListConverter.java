@@ -5,6 +5,7 @@ import com.alibaba.excel.enums.CellDataTypeEnum;
 import com.alibaba.excel.metadata.CellData;
 import com.alibaba.excel.metadata.GlobalConfiguration;
 import com.alibaba.excel.metadata.property.ExcelContentProperty;
+import com.sast.material.pojo.SysTag;
 import com.sast.user.pojo.SysRole;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class RoleListConverter implements Converter<ArrayList<SysRole>> {
 
     @Override
     public ArrayList<SysRole> convertToJavaData(CellData cellData, ExcelContentProperty excelContentProperty, GlobalConfiguration globalConfiguration) throws Exception {
+        if(cellData.getStringValue().equals("")) return new ArrayList<SysRole>();
         ArrayList<String> roles = (ArrayList<String>)Arrays.asList(cellData.getStringValue().split(","));
         ArrayList<SysRole> userRoles = new ArrayList<SysRole>();
         for(String role : roles){
@@ -35,6 +37,7 @@ public class RoleListConverter implements Converter<ArrayList<SysRole>> {
 
     @Override
     public CellData<String> convertToExcelData(ArrayList<SysRole> arrayList, ExcelContentProperty excelContentProperty, GlobalConfiguration globalConfiguration) throws Exception {
+        if(arrayList.isEmpty()) return new CellData<>("");
         StringBuilder sb = new StringBuilder();
         for(SysRole role : arrayList){
             sb.append(role.getRoleName());
