@@ -14,6 +14,8 @@ public class SysRole implements Serializable {
         this.roleName = roleName;
     }
 
+    public SysRole(){}
+
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }

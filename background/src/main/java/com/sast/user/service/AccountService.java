@@ -1,7 +1,6 @@
 package com.sast.user.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sast.user.mapper.SysUserMapper;
 import com.sast.user.pojo.RegisterUser;
 import com.sast.user.pojo.SysRole;
@@ -12,7 +11,6 @@ import com.sast.user.utils.RandomString;
 import com.sast.user.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,8 +31,6 @@ public class AccountService {
     @Resource
     SysUserMapper userMapper;
     @Resource
-    ObjectMapper mapper;
-    @Resource
     SysUserService userService;
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private CustomUserDetailsService customUserDetailsService;
@@ -44,7 +40,7 @@ public class AccountService {
     }
 
 
-    public String fuzzySearch(String keyword, ArrayList<String> roles) throws JsonProcessingException {
+    public ArrayList<SysUser> fuzzySearch(String keyword, ArrayList<String> roles) throws JsonProcessingException {
         if (roles != null && roles.size() > 0) {
             ArrayList<SysUser> rawResult = null;
             if (keyword != null && !keyword.equals("")) {
@@ -62,19 +58,19 @@ public class AccountService {
             for (SysUser user : rawResult) {
                 user.setPassword("");
             }
-            return mapper.writeValueAsString(rawResult);
+            return rawResult;
         } else if (keyword != null && !keyword.equals("")) {
             ArrayList<SysUser> rawResult = userMapper.fuzzySearch(keyword);
             for (SysUser user : rawResult) {
                 user.setPassword("");
             }
-            return mapper.writeValueAsString(rawResult);
+            return rawResult;
         } else {
             ArrayList<SysUser> rawResult = userMapper.selectAll();
             for (SysUser user : rawResult) {
                 user.setPassword("");
             }
-            return mapper.writeValueAsString(rawResult);
+            return rawResult;
         }
     }
 
@@ -120,7 +116,7 @@ public class AccountService {
             user.setRealName(registerUser.getRealName());
             user.setMail(registerUser.getMail());
             user.setStudentId(registerUser.getStudentId());
-            user.setUserName(registerUser.getUserName());
+            user.setUsername(registerUser.getUserName());
             String rawPassword = RandomString.getRandomString();
             user.setPassword(bCryptPasswordEncoder.encode(rawPassword));
             user.setSysRoles(userService.selectRoles(registerUser.getRoles()));
@@ -241,7 +237,7 @@ public class AccountService {
                 UserDetails newUser = new User(username, "", nowAuth.getAuthorities());
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(newUser, nowAuth.getCredentials(), nowAuth.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                user.setUserName(username);
+                user.setUsername(username);
             }
         }
         //判断是否修改真实姓名

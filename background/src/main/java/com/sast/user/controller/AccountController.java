@@ -65,7 +65,7 @@ public class AccountController {
             }
             String key = node.get("search").toString();
             key = key.substring(1, key.length() - 1);
-            return accountService.fuzzySearch(key, roles);
+            return mapper.writeValueAsString(accountService.fuzzySearch(key, roles));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

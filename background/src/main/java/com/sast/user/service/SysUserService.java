@@ -84,11 +84,11 @@ public class SysUserService {
     }
 
     public int batchAddUser(ArrayList<ExcelUser> userList){
-        if(userList.isEmpty()) return 0;
         ArrayList<ExcelUser> userListFinal = new ArrayList<>();
         for(ExcelUser user: userList){
             if(user.getErrInfo().equals("")) userListFinal.add(user);
         }
+        if(userListFinal.isEmpty()) return 0;
         int userAdded = userMapper.batchAddUser(userListFinal);
         ArrayList<SysRole> userRoles = selectAllRoles();
         HashMap<String, Integer> roleMap = new HashMap<String, Integer>();
@@ -128,9 +128,10 @@ public class SysUserService {
         }
     }
 
-    public boolean checkUser(ExcelUser user) {
-        if(isUsernameExisted(user.getUsername())) return false;
-        if(isMailExisted(user.getMail())) return false;
-        return !isStudentIdExisted(user.getStudentId());
+    public int checkUser(ExcelUser user) {
+        if(isUsernameExisted(user.getUsername())) return 1;
+        if(isMailExisted(user.getMail())) return 2;
+        if(!isStudentIdExisted(user.getStudentId())) return 3;
+        return 0;
     }
 }

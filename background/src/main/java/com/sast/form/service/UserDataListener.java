@@ -31,8 +31,15 @@ public class UserDataListener extends AnalysisEventListener<ExcelUser> {
     public void invoke(ExcelUser user, AnalysisContext analysisContext) {
         // TODO: 2020/8/14 数据校验
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        if(!userService.checkUser(user)){
-            user.setErrInfo("duplicated");
+        int errCode = userService.checkUser(user);
+        if(errCode == 1){
+            user.setErrInfo("duplicated username");
+        }
+        else if(errCode == 2){
+            user.setErrInfo("duplicated mail");
+        }
+        else if(errCode == 3){
+            user.setErrInfo("duplicated student id");
         }
         else {
             user.setPassword(RandomString.getRandomString());

@@ -15,7 +15,7 @@
     </select>
 
     <resultMap id="userResult" type="SysUser">
-        <result property="userName" column="user_name"/>
+        <result property="username" column="user_name"/>
         <result property="realName" column="real_name"/>
         <result property="studentId" column="student_id"/>
         <result property="uid" column="uid"/>
@@ -79,7 +79,7 @@
 
     <insert id="addUser" parameterType="SysUser">
         INSERT INTO security.user (user_name, password, mail, real_name, student_id)
-        VALUES (#{userName}, #{password}, #{mail}, #{realName}, #{studentId});
+        VALUES (#{username}, #{password}, #{mail}, #{realName}, #{studentId});
         <selectKey order="AFTER" keyProperty="uid" keyColumn="uid" resultType="int">
             select last_insert_id()
         </selectKey>

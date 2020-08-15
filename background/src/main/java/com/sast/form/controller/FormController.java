@@ -2,6 +2,8 @@ package com.sast.form.controller;
 
 import com.alibaba.excel.EasyExcel;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sast.user.pojo.SysUser;
+import com.sast.user.service.AccountService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,21 +13,41 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class FormController {
 
     @Resource
     ObjectMapper mapper;
+    @Resource
+    AccountService accountService;
 
-    @GetMapping("download")
+    @GetMapping("accounts/extract")
     public void download(HttpServletResponse response) throws IOException {
-        response.setContentType("application/vnd.ms-excel");
-        response.setCharacterEncoding("utf-8");
-        response.setHeader("Content-disposition", "attachment;filename=demo.xlsx");
-        //EasyExcel.write(response.getOutputStream(), DownloadData.class).sheet("模板").doWrite(data());
-
+        ArrayList<SysUser> result = accountService.fuzzySearch("", new ArrayList<String>());
+        try {
+            response.setContentType("application/vnd.ms-excel");
+            response.setCharacterEncoding("utf-8");
+            String fileName = URLEncoder.encode("user_data", StandardCharsets.UTF_8);
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+            // 这里需要设置不关闭流
+            EasyExcel.write(response.getOutputStream(), SysUser.class).autoCloseStream(Boolean.FALSE).sheet("user")
+                    .doWrite(result);
+        } catch (Exception e) {
+            // 重置response
+            response.reset();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("success", "fail");
+            map.put("message", "extract failed " + e.getMessage());
+            response.getWriter().println(mapper.writeValueAsString(map));
+        }
     }
 
 

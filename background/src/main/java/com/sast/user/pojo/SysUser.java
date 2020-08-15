@@ -1,5 +1,8 @@
 package com.sast.user.pojo;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.sast.form.service.RoleListConverter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -10,16 +13,23 @@ import java.util.Set;
 
 public class SysUser implements Serializable, UserDetails {
 
+    @ExcelIgnore
     static final long serialVersionUID = 7171722954972237961L;
-
+    @ExcelProperty(value = "权限", index = 5, converter = RoleListConverter.class)
     private ArrayList<SysRole> sysRoles;
+    @ExcelIgnore
     private Set<? extends GrantedAuthority> authorities;
-
-    private String userName;
+    @ExcelProperty(value = "用户名", index = 0)
+    private String username;
+    @ExcelIgnore
     private String password;
+    @ExcelProperty(value = "邮箱", index = 1)
     private String mail;
+    @ExcelProperty(value = "真实姓名", index = 2)
     private String realName;
+    @ExcelProperty(value = "学号", index = 3)
     private String studentId;
+    @ExcelProperty(value = "UID", index = 4)
     private int uid;
 
     public long getSerialVersionUID() {
@@ -27,11 +37,11 @@ public class SysUser implements Serializable, UserDetails {
     }
 
     public String getUsername() {
-        return userName;
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Override
@@ -119,7 +129,7 @@ public class SysUser implements Serializable, UserDetails {
     public String toString() {
         return "User{" +
                 "roles=" + sysRoles +
-                ", userName='" + userName + '\'' +
+                ", userName='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", mail='" + mail + '\'' +
                 ", realName='" + realName + '\'' +
