@@ -28,7 +28,6 @@ spring:
     password:
 
 
-
   mail:
     username: sastdpi@163.com
     password: TPPWOAYUFRCGFOAI
@@ -40,6 +39,13 @@ spring:
           starttls:
             enable: true
             required: true
+  thymeleaf:
+    prefix: classpath:/templates/email
+    cache: false
+    mode: HTML
+    servlet:
+      content-type: text/html
+    suffix: .html
 
 mybatis:
   type-aliases-package: com.sast.*.pojo

@@ -1,6 +1,5 @@
 package com.sast.user.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sast.user.mapper.SysUserMapper;
 import com.sast.user.pojo.RegisterUser;
 import com.sast.user.pojo.SysRole;
@@ -10,6 +9,7 @@ import com.sast.user.utils.MailUtil;
 import com.sast.user.utils.RandomString;
 import com.sast.user.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +32,8 @@ public class AccountService {
     SysUserMapper userMapper;
     @Resource
     SysUserService userService;
+    @Resource
+    MailUtil mailUtil;
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private CustomUserDetailsService customUserDetailsService;
     @Autowired
@@ -39,16 +41,19 @@ public class AccountService {
         this.customUserDetailsService = customUserDetailsService;
     }
 
+    @Value("${spring.mail.username}")
+    private String MAIL;
 
-    public ArrayList<SysUser> fuzzySearch(String keyword, ArrayList<String> roles) throws JsonProcessingException {
+
+    public ArrayList<SysUser> fuzzySearch(String keyword, ArrayList<String> roles) {
         if (roles != null && roles.size() > 0) {
-            ArrayList<SysUser> rawResult = null;
+            ArrayList<SysUser> rawResult;
             if (keyword != null && !keyword.equals("")) {
                 rawResult = userMapper.fuzzySearch(keyword);
             } else {
                 rawResult = userMapper.selectAll();
             }
-            SysUser tempUser = null;
+            SysUser tempUser;
             for (Iterator<SysUser> iterator = rawResult.iterator(); iterator.hasNext(); ) {
                 tempUser = iterator.next();
                 if (!hasRole(tempUser, roles)) {
@@ -121,8 +126,14 @@ public class AccountService {
             user.setPassword(bCryptPasswordEncoder.encode(rawPassword));
             user.setSysRoles(userService.selectRoles(registerUser.getRoles()));
             userService.addUser(user);
-            // TODO: 2020/8/5 可以发邮件之后注册时发送密码 
-            //MailUtil.sendPassword(registerUser.getMail(), rawPassword);
+            String[] to = new String[1];
+            to[0] = registerUser.getMail();
+            HashMap<String, String> info = new HashMap<String, String>();
+            info.put("username", registerUser.getUserName());
+            info.put("password", rawPassword);
+            info.put("mail", registerUser.getUserName());
+            info.put("studentId", registerUser.getStudentId());
+            mailUtil.thymeleafEmail(MAIL, to, "注册成功", info, "register");
         } catch (Exception e) {
             e.printStackTrace();
             returnInfo.put("success", "false");

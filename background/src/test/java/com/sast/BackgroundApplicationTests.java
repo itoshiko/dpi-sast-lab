@@ -35,15 +35,23 @@ class BackgroundApplicationTests {
     FormService formService;
     @Resource
     ObjectMapper mapper;
+    @Resource
+    MailUtil mailUtil;
 
     @Test
     void contextLoads() {
     }
 
-    // TODO: 2020/8/5 解决发送邮件问题
     @Test
     void mailTest() throws MessagingException {
-        MailUtil.sendPassword("tuhanz@163.com", "shshudhweudhwe");
+        String[] to = new String[1];
+        to[0] = "tuhanz@163.com";
+        HashMap<String, String> info = new HashMap<String, String>();
+        info.put("username", "itoshiko");
+        info.put("password", "cnusiYBC8");
+        info.put("mail", "tuhanz@163.com");
+        info.put("studentId", "2010010653");
+        mailUtil.thymeleafEmail("sastdpi@163.com", to, "password", info, "register");
     }
 
     @Test
