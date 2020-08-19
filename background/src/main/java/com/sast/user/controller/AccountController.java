@@ -79,7 +79,43 @@ public class AccountController {
         HashMap<String, String> returnInfo;
         try {
             String username = (String) mapper.readValue(request, HashMap.class).get("username");
-            returnInfo = accountService.deleteAccount(username);
+            returnInfo = accountService.deleteAccount(username, 1);
+            if (returnInfo.get("errCode").equals("403")) {
+                return mapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(ResultVO.result(ResultEnum.USER_NO_ACCESS, false));
+            } else return mapper.writeValueAsString(returnInfo);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "failed";
+    }
+
+    @PostMapping("/accounts/disable")
+    @ResponseBody
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
+    public String disableAccount(@RequestBody String request) {
+        HashMap<String, String> returnInfo;
+        try {
+            String username = (String) mapper.readValue(request, HashMap.class).get("username");
+            returnInfo = accountService.deleteAccount(username, 3);
+            if (returnInfo.get("errCode").equals("403")) {
+                return mapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(ResultVO.result(ResultEnum.USER_NO_ACCESS, false));
+            } else return mapper.writeValueAsString(returnInfo);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "failed";
+    }
+
+    @PostMapping("/accounts/enable")
+    @ResponseBody
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
+    public String enableAccount(@RequestBody String request) {
+        HashMap<String, String> returnInfo;
+        try {
+            String username = (String) mapper.readValue(request, HashMap.class).get("username");
+            returnInfo = accountService.deleteAccount(username, 2);
             if (returnInfo.get("errCode").equals("403")) {
                 return mapper.writerWithDefaultPrettyPrinter()
                         .writeValueAsString(ResultVO.result(ResultEnum.USER_NO_ACCESS, false));

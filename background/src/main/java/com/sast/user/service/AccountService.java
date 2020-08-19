@@ -149,7 +149,7 @@ public class AccountService {
         return returnInfo;
     }
 
-    public HashMap<String, String> deleteAccount(String username) {
+    public HashMap<String, String> deleteAccount(String username, int type) {
         SysUser user = userService.selectByName(username);
         int authentication;
         int highestRole = getHighestRole(user);
@@ -171,7 +171,15 @@ public class AccountService {
             return returnInfo;
         }
         try {
-            userService.deleteUserById(user.getUid());
+            if(type == 1){
+                userService.deleteUserById(user.getUid());
+            }
+            else if(type == 2){
+                enableUserById(user.getUid());
+            }
+            else if(type == 3){
+                disableUserById(user.getUid());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             returnInfo.put("success", "false");
@@ -265,6 +273,14 @@ public class AccountService {
         returnInfo.put("errInfo", errInfoList);
         returnInfo.put("errCode", errCodeList);
         return returnInfo;
+    }
+
+    public void enableUserById(int id){
+        userMapper.enableUserById(id);
+    }
+
+    public void disableUserById(int id){
+        userMapper.disableUserById(id);
     }
 
     @PreAuthorize("principal.username.equals(#username)")

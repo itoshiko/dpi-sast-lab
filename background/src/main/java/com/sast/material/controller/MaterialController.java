@@ -84,4 +84,16 @@ public class MaterialController {
             return "failed";
         }
     }
+
+    @PostMapping("/materials/update")
+    @ResponseBody
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
+    public String updateMaterial(@RequestBody SysMaterial material){
+        try {
+            return mapper.writeValueAsString(materialService.updateMaterial(material));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "failed";
+        }
+    }
 }

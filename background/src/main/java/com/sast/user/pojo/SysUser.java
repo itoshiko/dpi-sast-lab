@@ -31,6 +31,8 @@ public class SysUser implements Serializable, UserDetails {
     private String studentId;
     @ExcelProperty(value = "UID", index = 4)
     private int uid;
+    @ExcelProperty(value = "有效", index = 6)
+    private boolean enabled = true;
 
     public long getSerialVersionUID() {
         return serialVersionUID;
@@ -75,7 +77,7 @@ public class SysUser implements Serializable, UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.enabled;
     }
 
     public void setPassword(String password) {
@@ -122,19 +124,25 @@ public class SysUser implements Serializable, UserDetails {
         this.sysRoles = sysRoles;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public SysUser() {
     }
 
     @Override
     public String toString() {
-        return "User{" +
-                "roles=" + sysRoles +
-                ", userName='" + username + '\'' +
+        return "SysUser{" +
+                "sysRoles=" + sysRoles +
+                ", authorities=" + authorities +
+                ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", mail='" + mail + '\'' +
                 ", realName='" + realName + '\'' +
                 ", studentId='" + studentId + '\'' +
                 ", uid=" + uid +
+                ", enabled=" + enabled +
                 '}';
     }
 }

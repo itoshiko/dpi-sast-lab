@@ -1,6 +1,7 @@
 package com.sast.user.service;
 
 import com.sast.form.pojo.ExcelUser;
+import com.sast.material.service.RentalService;
 import com.sast.user.mapper.SysUserMapper;
 import com.sast.user.pojo.SysRole;
 import com.sast.user.pojo.SysUser;
@@ -14,10 +15,16 @@ import java.util.HashMap;
 public class SysUserService {
 
     private SysUserMapper userMapper;
+    private RentalService rentalService;
 
     @Autowired
     public void setUserMapper(SysUserMapper userMapper) {
         this.userMapper = userMapper;
+    }
+
+    @Autowired
+    public void setRentalService(RentalService rentalService) {
+        this.rentalService = rentalService;
     }
 
     public SysUser selectById(Integer id) {
@@ -104,6 +111,7 @@ public class SysUserService {
     }
 
     public void deleteUserById(int id) {
+        rentalService.deleteRecordByUserId(id);
         userMapper.deleteUserById(id);
     }
 

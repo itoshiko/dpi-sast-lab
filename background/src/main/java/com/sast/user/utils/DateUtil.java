@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class DateUtil {
+    // TODO: 2020/8/18 统一处理接口日期时间格式问题
 
     public final static SimpleDateFormat sdfTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -30,7 +31,7 @@ public class DateUtil {
      * @return
      */
     public static boolean compareDate(String s, String e) {
-        if(fomatDate(s)==null||fomatDate(e)==null){
+        if(formatDate(s)==null||formatDate(e)==null){
             return false;
         }
 //        return fomatDate(s).getTime() >=fomatDate(e).getTime();
@@ -42,8 +43,8 @@ public class DateUtil {
      * @param date
      * @return
      */
-    public static Date fomatDate(String date) {
-        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+    public static Date formatDate(String date) {
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             return fmt.parse(date);
         } catch (ParseException e) {

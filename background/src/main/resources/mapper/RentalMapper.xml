@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sast.material.mapper.RentalMapper">
+
+    <insert id="loanMaterial" useGeneratedKeys="true" keyProperty="loanId">
+        INSERT INTO material.loan (material_id,
+                                   count,
+                                   borrower_id,
+                                   loan_date,
+                                   reviewer_id,
+                                   expected_return_date)
+        VALUES (#{materialId},
+                #{count}, #{borrowerId},
+                #{loanDate},
+                #{reviewerId},
+                #{expectedReturnDate})
+    </insert>
+
+    <insert id="returnMaterial" useGeneratedKeys="true">
+        INSERT INTO material.return (material_id,
+                                     count,
+                                     borrower_id,
+                                     loan_date,
+                                     expected_return_date,
+                                     return_date,
+                                     number_returned,
+                                     number_damaged,
+                                     loan_reviewer_id,
+                                     return_reviewer_id,
+                                     status)
+        VALUES (#{materialId},
+                #{count},
+                #{borrowerId},
+                #{loanDate},
+                #{expectedReturnDate},
+                #{returnDate},
+                #{numberReturned},
+                #{numberDamaged},
+                #{loanReviewerId},
+                #{returnReviewerId},
+                #{status})
+    </insert>
+
+    <select id="selectLoanById" parameterType="int" resultType="SysLoan">
+        SELECT *
+        FROM material.loan
+        WHERE loan_id = #{loanId}
+    </select>
+
+    <select id="selectReturnById" parameterType="int" resultType="SysReturn">
+        SELECT *
+        FROM material.return
+        WHERE return_id = #{returnId}
+    </select>
+
+    <select id="selectNotReturnedByMaterialId" resultType="SysLoan">
+        SELECT *
+        FROM material.loan
+        WHERE material_id = #{mid}
+    </select>
+
+    <select id="selectReturnedByMaterialId" resultType="SysReturn">
+        SELECT *
+        FROM material.return
+        WHERE material_id = #{mid}
+          AND NOT EXISTS(
+                SELECT NULL FROM material.pending_return WHERE material.return.return_id = material.pending_return.rid)
+    </select>
+
+    <select id="selectNotReturnedByUserId" resultType="SysLoan">
+        SELECT *
+        FROM material.loan
+        WHERE borrower_id = #{uid}
+    </select>
+
+    <select id="selectReturnedByUserId" resultType="SysReturn">
+        SELECT *
+        FROM material.return
+        WHERE borrower_id = #{uid}
+          AND NOT EXISTS(
+                SELECT NULL FROM material.pending_return WHERE material.return.return_id = material.pending_return.rid)
+    </select>
+
+    <select id="selectAllNotReturned" resultType="SysLoan">
+        SELECT *
+        FROM material.loan
+    </select>
+
+    <select id="selectAllReturned" resultType="SysReturn">
+        SELECT *
+        FROM material.return
+        WHERE NOT EXISTS(
+                SELECT NULL FROM material.pending_return WHERE material.return.return_id = material.pending_return.rid)
+    </select>
+
+    <select id="selectLoanPending" parameterType="int" resultType="String">
+        SELECT remark
+        FROM material.pending_loan
+        WHERE lid = #{lid}
+    </select>
+
+    <select id="selectReturnPending" parameterType="int" resultType="String">
+        SELECT remark
+        FROM material.pending_return
+        WHERE rid = #{rid}
+    </select>
+
+    <update id="updateReturn">
+        UPDATE material.return
+        SET status             = #{status},
+            number_returned    = #{numberReturned},
+            number_damaged     = #{numberDamaged},
+            return_reviewer_id = #{returnReviewerId}
+        WHERE return_id = #{returnId}
+    </update>
+
+    <delete id="deleteRecordByUserId" parameterType="int">
+        DELETE
+        FROM material.loan
+        WHERE borrower_id = #{uid}
+           OR reviewer_id = #{uid};
+        DELETE
+        FROM material.return
+        WHERE borrower_id = #{uid}
+           OR loan_reviewer_id = #{uid}
+           OR return_reviewer_id = #{uid}
+    </delete>
+
+    <select id="allPendingLoan">
+        SELECT *
+        FROM material.loan
+        WHERE EXISTS(SELECT NULL FROM material.pending_loan WHERE material.loan.loan_id = material.pending_loan.lid)
+    </select>
+
+    <select id="allPendingReturn">
+        SELECT *
+        FROM material.return
+        WHERE EXISTS(SELECT NULL
+                     FROM material.pending_return
+                     WHERE material.return.return_id = material.pending_return.rid)
+    </select>
+
+    <insert id="addPendingLoan" useGeneratedKeys="true">
+        INSERT INTO material.pending_loan (lid, remark)
+        VALUES (#{lid}, #{remark})
+    </insert>
+
+    <insert id="addPendingReturn" useGeneratedKeys="true">
+        INSERT INTO material.pending_return (rid, remark)
+        VALUES (#{rid}, #{remark})
+    </insert>
+
+    <delete id="deletePendingLoan" parameterType="int">
+        DELETE
+        FROM material.pending_loan
+        WHERE lid = #{lid}
+    </delete>
+
+    <delete id="deletePendingReturn" parameterType="int">
+        DELETE
+        FROM material.pending_return
+        WHERE rid = #{rid}
+    </delete>
+
+
+</mapper>

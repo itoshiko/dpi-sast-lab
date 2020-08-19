@@ -46,6 +46,7 @@ spring:
     servlet:
       content-type: text/html
     suffix: .html
+    enabled: false
 
 mybatis:
   type-aliases-package: com.sast.*.pojo

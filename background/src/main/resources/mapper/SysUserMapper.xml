@@ -19,6 +19,7 @@
         <result property="realName" column="real_name"/>
         <result property="studentId" column="student_id"/>
         <result property="uid" column="uid"/>
+        <result property="enabled" column="enabled"/>
         <collection property="sysRoles" javaType="ArrayList" ofType="Roles" column="uid" select="getGroupByUserId"/>
     </resultMap>
     <select id="selectByName" resultMap="userResult" parameterType="String">
@@ -136,6 +137,18 @@
     <update id="updateRealNameById">
         UPDATE security.user
         SET real_name = #{realName}
+        WHERE uid = #{uid}
+    </update>
+
+    <update id="disableUserById" parameterType="int">
+        UPDATE security.user
+        SET enabled = FALSE
+        WHERE uid = #{uid}
+    </update>
+
+    <update id="enableUserById" parameterType="int">
+        UPDATE security.user
+        SET enabled = TRUE
         WHERE uid = #{uid}
     </update>
 

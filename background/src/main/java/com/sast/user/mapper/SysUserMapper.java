@@ -52,4 +52,8 @@ public interface SysUserMapper {
     void deleteUserById(@Param("uid")int uid);
 
     void deleteRoleById(@Param("uid") int uid);
+
+    void disableUserById(@Param("uid") int uid);
+
+    void enableUserById(@Param("uid") int uid);
 }

@@ -88,10 +88,26 @@ public class MaterialService {
         return false;
     }
 
-    public void updateMaterial(SysMaterial material) {
-        materialMapper.updateMaterial(material);
-        materialMapper.deleteTagsByMaterialId(material.getId());
-        materialMapper.addTagsByMaterialId(material.getId(), material.getTags());
+    public HashMap<String, String> updateMaterial(SysMaterial material) {
+        HashMap<String, String> returnInfo = new HashMap<>();
+        if(!isMaterialIdExists(material.getId())){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid id");
+            return returnInfo;
+        }
+        try{
+            materialMapper.updateMaterial(material);
+            materialMapper.deleteTagsByMaterialId(material.getId());
+            materialMapper.addTagsByMaterialId(material.getId(), material.getTags());
+        } catch(Exception e){
+            e.printStackTrace();
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "unexpected error");
+            return returnInfo;
+        }
+        returnInfo.put("success", "true");
+        returnInfo.put("errInfo", "");
+        return returnInfo;
     }
 
     public HashMap<String, String> deleteMaterialById(int id) {

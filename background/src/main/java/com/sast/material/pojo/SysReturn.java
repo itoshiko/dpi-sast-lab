@@ -121,6 +121,18 @@ public class SysReturn {
         this.status = status;
     }
 
+    public SysReturn() {
+    }
+
+    public SysReturn(SysLoan loan) {
+        this.materialId = loan.getMaterialId();
+        this.count = loan.getCount();
+        this.borrowerId = loan.getBorrowerId();
+        this.loanDate = loan.getLoanDate();
+        this.loanReviewerId = loan.getReviewerId();
+        this.expectedReturnDate = loan.getExpectedReturnDate();
+    }
+
     @Override
     public String toString() {
         return "SysReturn{" +

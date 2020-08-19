@@ -83,6 +83,14 @@ class BackgroundApplicationTests {
     }
 
     @Test
+    void materialList(){
+        SysMaterial material = materialService.selectById(6);
+        material.setRemaining(material.getRemaining() - 10);
+        materialService.updateMaterial(material);
+        System.out.println(materialService.selectById(6));
+    }
+
+    @Test
     void noticeTest() throws JsonProcessingException {
         SysNotice notice = new SysNotice();
         notice.setTitle("zznb4");
@@ -105,17 +113,19 @@ class BackgroundApplicationTests {
 
     @Test
     void accountsTest() throws JsonProcessingException {
-        accountService.deleteAccount("tianshuo");
+        accountService.deleteAccount("tianshuo", 1);
     }
 
     @Test
     void jsonTest() throws JsonProcessingException {
         HashMap<String, Object> data = new HashMap<String, Object>();
-        HashMap<String, String> received = new HashMap<String, String>();
-        data.put("test", true);
+        HashMap received = new HashMap<String, String>();
+        data.put("test", new Date());
         String json = mapper.writeValueAsString(data);
+        System.out.println(json);
         received = mapper.readValue(json, HashMap.class);
         System.out.println(received);
+        System.out.println(received.get("test").getClass());
     }
 
     @Test

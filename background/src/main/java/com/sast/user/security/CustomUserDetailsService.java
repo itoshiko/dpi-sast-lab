@@ -4,6 +4,7 @@ import com.sast.user.pojo.SysRole;
 import com.sast.user.pojo.SysUser;
 import com.sast.user.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -34,6 +35,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         // 判断用户是否存在
         if(user == null) {
             throw new UsernameNotFoundException("用户名不存在");
+        }
+
+        if(!user.isEnabled()) {
+            throw new UsernameNotFoundException("用户无效");
         }
 
         // 添加权限
