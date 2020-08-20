@@ -122,6 +122,10 @@ public class RentalService {
         return rentalMapper.selectLoanById(loadId);
     }
 
+    public SysReturn selectReturnById(int returnId) {
+        return rentalMapper.selectReturnById(returnId);
+    }
+
     public ArrayList<SysLoan> selectNotReturnedByMaterialId(int mid) {
         return rentalMapper.selectNotReturnedByMaterialId(mid);
     }
@@ -156,6 +160,14 @@ public class RentalService {
 
     public void deleteRecordByUserId(int id) {
         rentalMapper.deleteRecordByUserId(id);
+    }
+
+    public String getLoanRemark(int lid) {
+        return rentalMapper.selectLoanPending(lid);
+    }
+
+    public String getReturnRemark(int lid) {
+        return (String)rentalMapper.selectReturnPending(lid).get("remark");
     }
 
     public void addPendingLoan(int lid, String remark) {
@@ -236,7 +248,7 @@ public class RentalService {
                 sysReturn.setReturnReviewerId(Integer.parseInt(request.get("returnReviewerId")));
                 rentalMapper.updateReturn(sysReturn);
                 rentalMapper.deletePendingReturn(returnId);
-                rentalMapper.deleteLoanRecord((int)pendingInfo.get("lid"));
+                rentalMapper.deleteLoanRecord((int) pendingInfo.get("lid"));
                 SysMaterial material = materialService.selectById(sysReturn.getMaterialId());
                 material.setRemaining(material.getRemaining() + sysReturn.getNumberReturned());
                 material.setTotal(material.getTotal() - sysReturn.getNumberDamaged());
@@ -265,6 +277,4 @@ public class RentalService {
         returnInfo.put("errInfo", "");
         return returnInfo;
     }
-
-
 }

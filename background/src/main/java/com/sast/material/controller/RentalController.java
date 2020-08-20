@@ -2,6 +2,7 @@ package com.sast.material.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sast.material.pojo.SysLoan;
 import com.sast.material.pojo.SysReturn;
 import com.sast.material.service.MaterialService;
@@ -9,6 +10,7 @@ import com.sast.material.service.RentalService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
@@ -18,8 +20,6 @@ import java.util.HashMap;
 @Controller
 public class RentalController {
 
-    @Resource
-    MaterialService materialService;
     @Resource
     RentalService rentalService;
     @Resource
@@ -129,8 +129,16 @@ public class RentalController {
     @GetMapping("/materials/review-loan")
     @ResponseBody
     //@PreAuthorize("isAuthenticated()")
-    public void reviewLoan(@RequestBody HashMap<String, String> map){
-
+    public String reviewLoan(@RequestBody HashMap<String, String> map) throws JsonProcessingException {
+        try{
+            return mapper.writeValueAsString(rentalService.loanReview(map));
+        } catch (Exception e){
+            e.printStackTrace();
+            HashMap<String, String> returnInfo = new HashMap<>();
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "unexpected error");
+            return mapper.writeValueAsString(returnInfo);
+        }
     }
 
 
@@ -171,6 +179,38 @@ public class RentalController {
         } catch (Exception e) {
             e.printStackTrace();
             return "[]";
+        }
+    }
+
+    @GetMapping("/materials/loan-pending-detail")
+    @ResponseBody
+    //@PreAuthorize("isAuthenticated()")
+    public String getLoanPending(@RequestParam("lid") int lid){
+        try {
+            SysLoan loan = rentalService.selectLoanById(lid);
+            String remark = rentalService.getLoanRemark(lid);
+            ObjectNode root = mapper.valueToTree(loan);
+            root.put("remark", remark);
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{}";
+        }
+    }
+
+    @GetMapping("/materials/list-return-pending")
+    @ResponseBody
+    //@PreAuthorize("isAuthenticated()")
+    public String getReturnPending(@RequestParam("rid") int rid){
+        try {
+            SysReturn returnInfo = rentalService.selectReturnById(rid);
+            String remark = rentalService.getReturnRemark(rid);
+            ObjectNode root = mapper.valueToTree(returnInfo);
+            root.put("remark", remark);
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{}";
         }
     }
 }
