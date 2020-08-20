@@ -7,6 +7,7 @@ import com.sast.material.pojo.SysReturn;
 import com.sast.material.pojo.enums.MaterialStatus;
 import com.sast.user.service.SysUserService;
 import com.sast.user.utils.DateUtil;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,7 +25,8 @@ public class RentalService {
     @Resource
     RentalMapper rentalMapper;
 
-    public HashMap<String, String> loanMaterial(HashMap<String, String> request) {
+    @PreAuthorize("principal.username.equals(#username)")
+    public HashMap<String, String> loanMaterial(HashMap<String, String> request, String username) {
         HashMap<String, String> returnInfo = new HashMap<>();
         int id = Integer.parseInt(request.get("materialId"));
         int count = Integer.parseInt(request.get("count"));
@@ -78,7 +80,8 @@ public class RentalService {
         return returnInfo;
     }
 
-    public HashMap<String, String> returnMaterial(HashMap<String, String> request) {
+    @PreAuthorize("principal.username.equals(#username)")
+    public HashMap<String, String> returnMaterial(HashMap<String, String> request, String username) {
         HashMap<String, String> returnInfo = new HashMap<>();
         int loanId = Integer.parseInt(request.get("loadId"));
         SysLoan loan = selectLoanById(loanId);

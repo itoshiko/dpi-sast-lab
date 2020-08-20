@@ -61,16 +61,16 @@ class BackgroundApplicationTests {
     @Test
     void loanTest() {
         HashMap<String, String> request = new HashMap<String, String>();
-        /*request.put("materialId", "12");
+        request.put("materialId", "12");
         request.put("count", "2");
         request.put("borrowerId", "1");
-        request.put("expectedReturnDate", "2020-09-20 10:00:00");
+        request.put("expectedReturnDate", "2020-10-20 10:00:00");
         request.put("remark", "review test 2");
-        System.out.println(rentalService.loanMaterial(request));*/
-        request.put("loanId", "8");
+        System.out.println(rentalService.loanMaterial(request, "itoshiko"));
+        /*request.put("loanId", "8");
         request.put("approve", "true");
         request.put("reviewerId", "2");
-        System.out.println(rentalService.loanReview(request));
+        System.out.println(rentalService.loanReview(request));*/
     }
 
     @Test
@@ -84,7 +84,7 @@ class BackgroundApplicationTests {
         System.out.println(rentalService.returnMaterial(request));*/
         //System.out.println(rentalMapper.selectReturnPending(666));
         request.put("approve", "true");
-        request.put("returnId", "3");
+        request.put("returnId", "4");
         request.put("returnReviewerId", "1");
         System.out.println(rentalService.returnReview(request));
     }

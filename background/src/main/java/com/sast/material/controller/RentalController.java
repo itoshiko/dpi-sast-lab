@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sast.material.pojo.SysLoan;
 import com.sast.material.pojo.SysReturn;
-import com.sast.material.service.MaterialService;
 import com.sast.material.service.RentalService;
+import com.sast.user.service.SysUserService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,14 +24,18 @@ public class RentalController {
     @Resource
     RentalService rentalService;
     @Resource
+    SysUserService userService;
+    @Resource
     ObjectMapper mapper;
 
     @GetMapping("/materials/loan")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     public String loanMaterial(@RequestBody HashMap<String, String> map) throws JsonProcessingException {
         try {
-            return mapper.writeValueAsString(rentalService.loanMaterial(map));
+            int uid = Integer.parseInt(map.get("borrowerId"));
+            String username = userService.selectById(uid).getUsername();
+            return mapper.writeValueAsString(rentalService.loanMaterial(map, username));
         } catch (Exception e) {
             e.printStackTrace();
             HashMap<String, String> returnInfo = new HashMap<>();
@@ -42,10 +47,14 @@ public class RentalController {
 
     @GetMapping("/materials/return")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     public String returnMaterial(@RequestBody HashMap<String, String> map) throws JsonProcessingException {
         try {
-            return mapper.writeValueAsString(rentalService.returnMaterial(map));
+            int loanId = Integer.parseInt(map.get("loadId"));
+            SysLoan loan = rentalService.selectLoanById(loanId);
+            int uid = loan.getBorrowerId();
+            String username = userService.selectById(uid).getUsername();
+            return mapper.writeValueAsString(rentalService.returnMaterial(map, username));
         } catch (Exception e) {
             e.printStackTrace();
             HashMap<String, String> returnInfo = new HashMap<>();
@@ -58,7 +67,7 @@ public class RentalController {
 
     @GetMapping("/materials/list-not-returned")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     public String listNotReturned(@RequestBody HashMap<String, String> map){
         ArrayList<SysLoan> result;
         if(map.get("uid") != null && map.get("uid").length() != 0){
@@ -93,7 +102,7 @@ public class RentalController {
 
     @GetMapping("/materials/list-returned")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     public String listReturned(@RequestBody HashMap<String, String> map){
         ArrayList<SysReturn> result;
         if(map.get("uid") != null && map.get("uid").length() != 0){
@@ -128,7 +137,7 @@ public class RentalController {
 
     @GetMapping("/materials/review-loan")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     public String reviewLoan(@RequestBody HashMap<String, String> map) throws JsonProcessingException {
         try{
             return mapper.writeValueAsString(rentalService.loanReview(map));
@@ -144,7 +153,7 @@ public class RentalController {
 
     @GetMapping("/materials/review-return")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     public String reviewReturn(@RequestBody HashMap<String, String> map) throws JsonProcessingException {
         try{
             return mapper.writeValueAsString(rentalService.returnReview(map));
@@ -160,7 +169,7 @@ public class RentalController {
 
     @GetMapping("/materials/list-loan-pending")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     public String listLoanPending(){
         try {
             return mapper.writeValueAsString(rentalService.allPendingLoan());
@@ -172,7 +181,7 @@ public class RentalController {
 
     @GetMapping("/materials/list-return-pending")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     public String listReturnPending(){
         try {
             return mapper.writeValueAsString(rentalService.allPendingReturn());
@@ -184,7 +193,7 @@ public class RentalController {
 
     @GetMapping("/materials/loan-pending-detail")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     public String getLoanPending(@RequestParam("lid") int lid){
         try {
             SysLoan loan = rentalService.selectLoanById(lid);
@@ -198,9 +207,9 @@ public class RentalController {
         }
     }
 
-    @GetMapping("/materials/list-return-pending")
+    @GetMapping("/materials/return-pending-detail")
     @ResponseBody
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     public String getReturnPending(@RequestParam("rid") int rid){
         try {
             SysReturn returnInfo = rentalService.selectReturnById(rid);
