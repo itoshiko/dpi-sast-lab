@@ -58,17 +58,20 @@ public class RentalService {
             loan.setExpectedReturnDate(DateUtil.formatDate(request.get("expectedReturnDate")));
         }
         rentalMapper.loanMaterial(loan);
-        material.setRemaining(material.getRemaining() - count);
-        materialService.updateMaterial(material);
         if (material.isNeedReview()) {
             if (request.get("remark") != null || request.get("remark").length() == 0) {
                 addPendingLoan(loan.getLoanId(), request.get("remark"));
             } else {
                 addPendingLoan(loan.getLoanId(), "nothing to say");
             }
+            material.setRemaining(material.getRemaining() - count);
+            materialService.updateMaterial(material);
             returnInfo.put("success", "true");
             returnInfo.put("errInfo", "review pending");
             return returnInfo;
+        } else {
+            material.setRemaining(material.getRemaining() - count);
+            materialService.updateMaterial(material);
         }
         returnInfo.put("success", "true");
         returnInfo.put("errInfo", "");
@@ -92,28 +95,23 @@ public class RentalService {
         }
         if (request.get("numberDamaged") == null || request.get("numberDamaged").length() == 0) {
             returnInfo.put("success", "false");
-            returnInfo.put("errInfo", "no loans allowed");
-            return returnInfo;
-        }
-        if (request.get("returnDate") == null || request.get("returnDate").length() == 0) {
-            returnInfo.put("success", "false");
-            returnInfo.put("errInfo", "invalid user id");
+            returnInfo.put("errInfo", "missing information");
             return returnInfo;
         }
         if (request.get("status") == null || request.get("status").length() == 0) {
             returnInfo.put("success", "false");
-            returnInfo.put("errInfo", "invalid user id");
+            returnInfo.put("errInfo", "need status");
             return returnInfo;
         }
-        sysReturn.setReturnDate(DateUtil.formatDate(request.get("returnDate")));
+        sysReturn.setReturnDate(new Date());
         sysReturn.setNumberReturned(Integer.parseInt(request.get("numberReturned")));
         sysReturn.setNumberDamaged(Integer.parseInt(request.get("numberDamaged")));
         sysReturn.setStatus(MaterialStatus.valueOf(request.get("status")));
         rentalMapper.returnMaterial(sysReturn);
         if (request.get("remark") != null || request.get("remark").length() == 0) {
-            addPendingReturn(sysReturn.getReturnId(), request.get("remark"));
+            addPendingReturn(loanId, sysReturn.getReturnId(), request.get("remark"));
         } else {
-            addPendingReturn(sysReturn.getReturnId(), "nothing to say");
+            addPendingReturn(loanId, sysReturn.getReturnId(), "nothing to say");
         }
         returnInfo.put("success", "true");
         returnInfo.put("errInfo", "review pending");
@@ -164,38 +162,103 @@ public class RentalService {
         rentalMapper.addPendingLoan(lid, remark);
     }
 
-    public void addPendingReturn(int rid, String remark) {
-        rentalMapper.addPendingReturn(rid, remark);
+    public void addPendingReturn(int lid, int rid, String remark) {
+        rentalMapper.addPendingReturn(lid, rid, remark);
     }
 
-    public HashMap<String, String> reviewReturn(HashMap<String, String> request) {
+    public HashMap<String, String> loanReview(HashMap<String, String> request) {
+        HashMap<String, String> returnInfo = new HashMap<>();
+        int loanId = Integer.parseInt(request.get("loanId"));
+        SysLoan sysLoan = rentalMapper.selectLoanById(loanId);
+        if (sysLoan == null || rentalMapper.selectLoanPending(loanId) == null) {
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid loan id");
+            return returnInfo;
+        }
+        if (request.get("approve") == null || request.get("approve").length() == 0) {
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "need result");
+            return returnInfo;
+        }
+        try {
+            if (request.get("approve").equals("true")) {
+                sysLoan.setReviewerId(Integer.parseInt(request.get("reviewerId")));
+                rentalMapper.updateLoan(sysLoan);
+                rentalMapper.deletePendingLoan(loanId);
+            } else if (request.get("approve").equals("false")) {
+                SysMaterial material = materialService.selectById(sysLoan.getMaterialId());
+                material.setRemaining(material.getRemaining() + sysLoan.getCount());
+                materialService.updateMaterial(material);
+                rentalMapper.deletePendingLoan(loanId);
+                rentalMapper.deleteLoanRecord(loanId);
+            } else {
+                returnInfo.put("success", "false");
+                returnInfo.put("errInfo", "invalid result");
+                return returnInfo;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "unexpected error");
+            return returnInfo;
+        }
+        returnInfo.put("success", "true");
+        returnInfo.put("errInfo", "");
+        return returnInfo;
+    }
+
+    public HashMap<String, String> returnReview(HashMap<String, String> request) {
         HashMap<String, String> returnInfo = new HashMap<>();
         int returnId = Integer.parseInt(request.get("returnId"));
         SysReturn sysReturn = rentalMapper.selectReturnById(returnId);
-        if (sysReturn == null) {
+        HashMap<String, Object> pendingInfo = rentalMapper.selectReturnPending(returnId);
+        if (sysReturn == null || pendingInfo == null) {
             returnInfo.put("success", "false");
             returnInfo.put("errInfo", "invalid return id");
             return returnInfo;
         }
-        if (request.get("status") != null && request.get("status").length() != 0) {
-            sysReturn.setStatus(MaterialStatus.valueOf(request.get("status")));
-        }
-        if (request.get("numberReturned") != null && request.get("numberReturned").length() != 0) {
-            sysReturn.setNumberReturned(Integer.parseInt(request.get("numberReturned")));
-        }
-        if (request.get("numberDamaged") != null && request.get("numberDamaged").length() != 0) {
-            sysReturn.setNumberDamaged(Integer.parseInt(request.get("numberDamaged")));
-        }
-        try{
-            sysReturn.setReturnReviewerId(Integer.parseInt(request.get("returnReviewerId")));
-            rentalMapper.updateReturn(sysReturn);
-            rentalMapper.deletePendingReturn(returnId);
-            SysMaterial material = materialService.selectById(sysReturn.getMaterialId());
-            material.setRemaining(material.getRemaining() + sysReturn.getNumberReturned());
-            materialService.updateMaterial(material);
-        } catch(Exception e){
+        if (request.get("approve") == null || request.get("approve").length() == 0) {
             returnInfo.put("success", "false");
-            returnInfo.put("errInfo", "unexpected error");
+            returnInfo.put("errInfo", "need result");
+            return returnInfo;
+        }
+        if (request.get("approve").equals("true")) {
+            if (request.get("status") != null && request.get("status").length() != 0) {
+                sysReturn.setStatus(MaterialStatus.valueOf(request.get("status")));
+            }
+            if (request.get("numberReturned") != null && request.get("numberReturned").length() != 0) {
+                sysReturn.setNumberReturned(Integer.parseInt(request.get("numberReturned")));
+            }
+            if (request.get("numberDamaged") != null && request.get("numberDamaged").length() != 0) {
+                sysReturn.setNumberDamaged(Integer.parseInt(request.get("numberDamaged")));
+            }
+            try {
+                sysReturn.setReturnReviewerId(Integer.parseInt(request.get("returnReviewerId")));
+                rentalMapper.updateReturn(sysReturn);
+                rentalMapper.deletePendingReturn(returnId);
+                rentalMapper.deleteLoanRecord((int)pendingInfo.get("lid"));
+                SysMaterial material = materialService.selectById(sysReturn.getMaterialId());
+                material.setRemaining(material.getRemaining() + sysReturn.getNumberReturned());
+                material.setTotal(material.getTotal() - sysReturn.getNumberDamaged());
+                materialService.updateMaterial(material);
+            } catch (Exception e) {
+                e.printStackTrace();
+                returnInfo.put("success", "false");
+                returnInfo.put("errInfo", "unexpected error");
+                return returnInfo;
+            }
+        } else if (request.get("approve").equals("false")) {
+            try {
+                rentalMapper.deletePendingReturn(returnId);
+                rentalMapper.deleteReturnRecord(returnId);
+            } catch (Exception e) {
+                returnInfo.put("success", "false");
+                returnInfo.put("errInfo", "unexpected error");
+                return returnInfo;
+            }
+        } else {
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid result");
             return returnInfo;
         }
         returnInfo.put("success", "true");

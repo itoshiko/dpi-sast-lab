@@ -16,7 +16,7 @@
                 #{expectedReturnDate})
     </insert>
 
-    <insert id="returnMaterial" useGeneratedKeys="true">
+    <insert id="returnMaterial" useGeneratedKeys="true" keyProperty="returnId">
         INSERT INTO material.return (material_id,
                                      count,
                                      borrower_id,
@@ -99,8 +99,8 @@
         WHERE lid = #{lid}
     </select>
 
-    <select id="selectReturnPending" parameterType="int" resultType="String">
-        SELECT remark
+    <select id="selectReturnPending" parameterType="int" resultType="java.util.Map">
+        SELECT remark, lid
         FROM material.pending_return
         WHERE rid = #{rid}
     </select>
@@ -112,6 +112,12 @@
             number_damaged     = #{numberDamaged},
             return_reviewer_id = #{returnReviewerId}
         WHERE return_id = #{returnId}
+    </update>
+
+    <update id="updateLoan">
+        UPDATE material.loan
+        SET reviewer_id = #{reviewerId}
+        WHERE loan_id = #{loanId}
     </update>
 
     <delete id="deleteRecordByUserId" parameterType="int">
@@ -126,13 +132,13 @@
            OR return_reviewer_id = #{uid}
     </delete>
 
-    <select id="allPendingLoan">
+    <select id="allPendingLoan" resultType="SysLoan">
         SELECT *
         FROM material.loan
         WHERE EXISTS(SELECT NULL FROM material.pending_loan WHERE material.loan.loan_id = material.pending_loan.lid)
     </select>
 
-    <select id="allPendingReturn">
+    <select id="allPendingReturn" resultType="SysReturn">
         SELECT *
         FROM material.return
         WHERE EXISTS(SELECT NULL
@@ -146,8 +152,8 @@
     </insert>
 
     <insert id="addPendingReturn" useGeneratedKeys="true">
-        INSERT INTO material.pending_return (rid, remark)
-        VALUES (#{rid}, #{remark})
+        INSERT INTO material.pending_return (rid, remark, lid)
+        VALUES (#{rid}, #{remark}, #{lid})
     </insert>
 
     <delete id="deletePendingLoan" parameterType="int">
@@ -160,6 +166,18 @@
         DELETE
         FROM material.pending_return
         WHERE rid = #{rid}
+    </delete>
+
+    <delete id="deleteLoanRecord" parameterType="int">
+        DELETE
+        FROM material.loan
+        WHERE loan_id = #{lid}
+    </delete>
+
+    <delete id="deleteReturnRecord" parameterType="int">
+        DELETE
+        FROM material.return
+        WHERE return_id = #{rid}
     </delete>
 
 

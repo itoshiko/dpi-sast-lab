@@ -97,8 +97,10 @@ public class MaterialService {
         }
         try{
             materialMapper.updateMaterial(material);
-            materialMapper.deleteTagsByMaterialId(material.getId());
-            materialMapper.addTagsByMaterialId(material.getId(), material.getTags());
+            if(!material.getTags().isEmpty()){
+                materialMapper.deleteTagsByMaterialId(material.getId());
+                materialMapper.addTagsByMaterialId(material.getId(), material.getTags());
+            }
         } catch(Exception e){
             e.printStackTrace();
             returnInfo.put("success", "false");

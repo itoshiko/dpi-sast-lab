@@ -3,8 +3,10 @@ package com.sast;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sast.form.service.FormService;
+import com.sast.material.mapper.RentalMapper;
 import com.sast.material.pojo.SysMaterial;
 import com.sast.material.service.MaterialService;
+import com.sast.material.service.RentalService;
 import com.sast.notice.pojo.PriorityEnum;
 import com.sast.notice.pojo.SysNotice;
 import com.sast.notice.service.NoticeService;
@@ -32,11 +34,13 @@ class BackgroundApplicationTests {
     @Resource
     AccountService accountService;
     @Resource
-    FormService formService;
+    RentalService rentalService;
     @Resource
     ObjectMapper mapper;
     @Resource
     MailUtil mailUtil;
+    @Resource
+    RentalMapper rentalMapper;
 
     @Test
     void contextLoads() {
@@ -55,31 +59,42 @@ class BackgroundApplicationTests {
     }
 
     @Test
-    void materialTest() {
-        /*SysMaterial material = new SysMaterial();
-        material.setId(6);
-        material.setLoanable(true);
-        material.setName("HC-05蓝牙模块");
-        material.setClassification("00000XXX");
-        material.setNeedReview(false);
-        material.setPrice(20);
-        material.setWarehousingDate(new Date());
-        material.setTotal(100);
-        material.setRemaining(70);
-        material.setStorageLocation("NULL");
-        ArrayList<SysTag> tags = new ArrayList<SysTag>();
-        tags.add(new SysTag(3, "Wireless"));
-        tags.add(new SysTag(4, "Bluetooth"));
-        material.setTags(tags);
-        System.out.println(material);
-        materialService.updateMaterial(material);*/
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        ArrayList<String> tags = new ArrayList<String>();
-        tags.add("Wireless");
-        map.put("tags", tags);
-        for(SysMaterial material : materialService.selectMaterial(map)){
-            System.out.println(material);
-        }
+    void loanTest() {
+        HashMap<String, String> request = new HashMap<String, String>();
+        /*request.put("materialId", "12");
+        request.put("count", "2");
+        request.put("borrowerId", "1");
+        request.put("expectedReturnDate", "2020-09-20 10:00:00");
+        request.put("remark", "review test 2");
+        System.out.println(rentalService.loanMaterial(request));*/
+        request.put("loanId", "8");
+        request.put("approve", "true");
+        request.put("reviewerId", "2");
+        System.out.println(rentalService.loanReview(request));
+    }
+
+    @Test
+    void returnTest(){
+        HashMap<String, String> request = new HashMap<String, String>();
+        /*request.put("loadId", "6");
+        request.put("numberReturned", "2");
+        request.put("numberDamaged", "0");
+        request.put("status", "INTACT");
+        request.put("remark", "还回来了");
+        System.out.println(rentalService.returnMaterial(request));*/
+        //System.out.println(rentalMapper.selectReturnPending(666));
+        request.put("approve", "true");
+        request.put("returnId", "3");
+        request.put("returnReviewerId", "1");
+        System.out.println(rentalService.returnReview(request));
+    }
+
+    @Test
+    void materialTest2(){
+        System.out.println(rentalService.selectAllNotReturned());
+        System.out.println(rentalService.selectNotReturnedByMaterialId(6));
+        System.out.println(rentalService.selectNotReturnedByUserId(1));
+        System.out.println(rentalService.allPendingLoan());
     }
 
     @Test
