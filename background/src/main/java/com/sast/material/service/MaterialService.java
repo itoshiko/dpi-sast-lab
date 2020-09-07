@@ -3,6 +3,7 @@ package com.sast.material.service;
 import com.sast.material.mapper.SysMaterialMapper;
 import com.sast.material.pojo.SysMaterial;
 import com.sast.material.pojo.SysTag;
+import com.sast.user.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,8 @@ public class MaterialService {
 
     @Resource
     MaterialExtraService materialExtraService;
+    @Resource
+    RentalService rentalService;
 
     private SysMaterialMapper materialMapper;
 
@@ -53,7 +56,7 @@ public class MaterialService {
             conditions.put("needReview", request.get("needReview"));
         }
         if (request.containsKey("dateHigh")) {
-            conditions.put("warehousingDateHigh", request.get("dateHigh"));
+            conditions.put("warehousingDateHigh", DateUtil.formatSimpleDate((String) request.get("dateHigh")));
         }
         if (request.containsKey("dateLow")) {
             conditions.put("warehousingDateLow", request.get("dateLow"));
@@ -121,8 +124,9 @@ public class MaterialService {
         }
         try{
             materialExtraService.deleteDocInfoByMaterial(id);
-            materialExtraService.deleteImgInfoByMaterial(id);
+            materialExtraService.deleteImgInfoByMaterial(id); //删除图片和文档信息
             materialMapper.deleteTagsByMaterialId(id); //虽然有级联删除，但是感觉还是这样子保险一点
+            rentalService.deleteAllByMaterialId(id); //删除借还记录
             materialMapper.deleteMaterialById(id);
         } catch(Exception e){
             e.printStackTrace();
@@ -145,10 +149,12 @@ public class MaterialService {
         } catch(Exception e){
             returnInfo.put("success", "false");
             returnInfo.put("errInfo", "unexpected error");
+            returnInfo.put("id", "");
             return returnInfo;
         }
         returnInfo.put("success", "true");
         returnInfo.put("errInfo", "");
+        returnInfo.put("id", String.valueOf(material.getId()));
         return returnInfo;
     }
 }

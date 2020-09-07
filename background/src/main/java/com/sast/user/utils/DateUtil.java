@@ -13,7 +13,7 @@ public class DateUtil {
 
     public final static SimpleDateFormat sdfTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static SimpleDateFormat sdf_date_format = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat sdf_date_format = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * 获取当前时间的YYYY-MM-DD HH:mm:ss格式
@@ -22,6 +22,10 @@ public class DateUtil {
      */
     public static String getTime() {
         return sdfTime.format(new Date());
+    }
+
+    public static String getStringTime(Date date){
+        return sdfTime.format(date);
     }
 
     /**
@@ -45,6 +49,16 @@ public class DateUtil {
      */
     public static Date formatDate(String date) {
         DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            return fmt.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Date formatSimpleDate(String date){
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
         try {
             return fmt.parse(date);
         } catch (ParseException e) {

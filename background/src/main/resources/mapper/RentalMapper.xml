@@ -180,5 +180,14 @@
         WHERE return_id = #{rid}
     </delete>
 
+    <delete id="deleteRecordByMaterialId" parameterType="int">
+        DELETE
+        FROM material.loan
+        WHERE material_id = #{id};
+        DELETE
+        FROM material.return
+        WHERE material_id = #{id};
+    </delete>
+
 
 </mapper>

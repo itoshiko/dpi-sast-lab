@@ -37,10 +37,10 @@ public class AccountController {
     @Lazy
     private SessionRegistry sessionRegistry;
 
-    @GetMapping("/account")
+    @GetMapping("/account/{username}")
     @ResponseBody
     @PreAuthorize("isAuthenticated() and principal.username.equals(#username)")
-    public String accountInfo(String username) {
+    public String accountInfo(@PathVariable String username) {
         try {
             SysUser user = userService.selectByName(username);
             user.setPassword("");

@@ -2,9 +2,11 @@ package com.sast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sast.form.service.FormService;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sast.material.mapper.RentalMapper;
 import com.sast.material.pojo.SysMaterial;
+import com.sast.material.pojo.SysTag;
 import com.sast.material.service.MaterialService;
 import com.sast.material.service.RentalService;
 import com.sast.notice.pojo.PriorityEnum;
@@ -12,7 +14,9 @@ import com.sast.notice.pojo.SysNotice;
 import com.sast.notice.service.NoticeService;
 import com.sast.user.service.AccountService;
 import com.sast.user.service.SysUserService;
+import com.sast.user.utils.DateUtil;
 import com.sast.user.utils.MailUtil;
+import com.sast.user.utils.StringUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -47,6 +51,35 @@ class BackgroundApplicationTests {
     }
 
     @Test
+    void JSONTest() throws JsonProcessingException {
+        HashMap<String, Object> testMap = new HashMap<String, Object>();
+        ArrayList<String> list = new ArrayList<>();
+        list.add("AAA");
+        list.add("BBB");
+        testMap.put("www", list);
+        System.out.println(mapper.writeValueAsString(testMap));
+        HashMap testMap2 = mapper.readValue(mapper.writeValueAsString(testMap), HashMap.class);
+        System.out.println(testMap2.get("www").getClass());
+    }
+
+    @Test
+    void JSONTest2() throws JsonProcessingException {
+        ArrayList<String> imgList = new ArrayList<>();
+        imgList.add("ssss");
+        imgList.add("dddd");
+        ArrayList<SysTag> tags = new ArrayList<SysTag>();
+        tags.add(new SysTag());
+        SysMaterial material = new SysMaterial();
+        material.setTags(tags);
+        ObjectNode node = mapper.valueToTree(material);
+        ArrayNode node2 = mapper.valueToTree(imgList);
+        node.putArray("imgList").addAll(node2);
+        node.put("warehousingDate", DateUtil.getTime());
+        //node.put("img", mapper.writeValueAsString(imgList));
+        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node));
+    }
+
+    @Test
     void mailTest() throws MessagingException {
         String[] to = new String[1];
         to[0] = "tuhanz@163.com";
@@ -74,7 +107,7 @@ class BackgroundApplicationTests {
     }
 
     @Test
-    void returnTest(){
+    void returnTest() {
         HashMap<String, String> request = new HashMap<String, String>();
         /*request.put("loadId", "6");
         request.put("numberReturned", "2");
@@ -90,7 +123,7 @@ class BackgroundApplicationTests {
     }
 
     @Test
-    void materialTest2(){
+    void materialTest2() {
         System.out.println(rentalService.selectAllNotReturned());
         System.out.println(rentalService.selectNotReturnedByMaterialId(6));
         System.out.println(rentalService.selectNotReturnedByUserId(1));
@@ -98,7 +131,7 @@ class BackgroundApplicationTests {
     }
 
     @Test
-    void materialList(){
+    void materialList() {
         SysMaterial material = materialService.selectById(6);
         material.setRemaining(material.getRemaining() - 10);
         materialService.updateMaterial(material);
@@ -144,7 +177,15 @@ class BackgroundApplicationTests {
     }
 
     @Test
-    public void excel() {
+    public void passwordRegex() {
+        System.out.println(StringUtil.checkPassword("123456"));
+        System.out.println(StringUtil.checkPassword("123456456666"));
+        System.out.println(StringUtil.checkPassword("123456fef22"));
+        System.out.println(StringUtil.checkPassword("ermlvremvimvvv"));
+        System.out.println(StringUtil.checkPassword("AAaa22"));
+        System.out.println(StringUtil.checkPassword("dwdas"));
+        System.out.println(StringUtil.checkPassword("3243frfe#!!AA"));
+
     }
 
 

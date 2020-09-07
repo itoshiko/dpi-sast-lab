@@ -26,5 +26,4 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
         httpServletResponse.getWriter().write(mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(ResultVO.result(ResultEnum.USER_LOGIN_FAILED,false)));
     }
-
 }

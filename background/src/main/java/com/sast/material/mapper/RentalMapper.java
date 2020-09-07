@@ -59,4 +59,6 @@ public interface RentalMapper {
 
     public void deletePendingReturn(@Param("rid") int rid);
 
+    public void deleteRecordByMaterialId(@Param("id")int id);
+
 }

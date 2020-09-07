@@ -122,9 +122,16 @@ public class AccountService {
             user.setMail(registerUser.getMail());
             user.setStudentId(registerUser.getStudentId());
             user.setUsername(registerUser.getUserName());
-            String rawPassword = RandomString.getRandomString();
+            boolean flag = true;
+            String rawPassword = null;
+            while(flag){
+                rawPassword = RandomString.getRandomString();
+                if(StringUtil.checkPassword(rawPassword)) flag = false;
+            }
             user.setPassword(bCryptPasswordEncoder.encode(rawPassword));
-            user.setSysRoles(userService.selectRoles(registerUser.getRoles()));
+            ArrayList<String> roles = new ArrayList<>();
+            roles.add("ROLE_NORMAL");
+            user.setSysRoles(userService.selectRoles(roles));
             userService.addUser(user);
             String[] to = new String[1];
             to[0] = registerUser.getMail();

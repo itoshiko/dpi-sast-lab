@@ -12,7 +12,6 @@ public class RegisterUser {
     private String mail;
     private String realName;
     private String studentId;
-    private ArrayList<String> roles;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
@@ -48,13 +47,5 @@ public class RegisterUser {
 
     public void setStudentId(String studentId) {
         this.studentId = studentId;
-    }
-
-    public ArrayList<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(ArrayList<String> roles) {
-        this.roles = roles;
     }
 }

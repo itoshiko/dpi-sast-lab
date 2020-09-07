@@ -2,9 +2,15 @@ package com.sast.material.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sast.material.pojo.SysMaterial;
+import com.sast.material.pojo.SysMaterialDoc;
+import com.sast.material.pojo.SysMaterialExtra;
+import com.sast.material.pojo.SysMaterialImg;
 import com.sast.material.service.MaterialExtraService;
 import com.sast.material.service.MaterialService;
+import com.sast.user.utils.DateUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -36,23 +42,38 @@ public class MaterialController {
         }
     }
 
-    @GetMapping("/materials/detail")
+    @GetMapping("/materials/detail/{id}")
     @ResponseBody
     @PreAuthorize("isAuthenticated()")
-    public String selectMaterialExtraInfo(@RequestParam("id") int id){
+    public String selectMaterialDetail(@PathVariable("id") int id){
         SysMaterial material = materialService.selectById(id);
+        SysMaterialExtra materialExtra = materialExtraService.getMaterialExtra(id);
+        ArrayList<String> imgList = new ArrayList<>();
+        ArrayList<String> docList = new ArrayList<>();
+        for(SysMaterialImg img : materialExtra.getImg()){
+            imgList.add(img.getImgUUID());
+        }
+        for(SysMaterialDoc doc : materialExtra.getDoc()){
+            docList.add(doc.getDocUUID());
+        }
         try {
-            return mapper.writeValueAsString(material);
+            ObjectNode root = mapper.valueToTree(material);
+            ArrayNode imgListNode = mapper.valueToTree(imgList);
+            ArrayNode docListNode = mapper.valueToTree(docList);
+            root.putArray("imgList").addAll(imgListNode);
+            root.putArray("docList").addAll(docListNode);
+            root.put("warehousingDate", DateUtil.getStringTime(material.getWarehousingDate()));
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return "{}";
         }
     }
 
-    @GetMapping("/materials/detail-extra")
+    @GetMapping("/materials/detail-extra/{id}")
     @ResponseBody
     @PreAuthorize("isAuthenticated()")
-    public String selectMaterialDetail(@RequestParam("id") int id){
+    public String selectMaterialExtraInfo(@PathVariable("id") int id){
         try {
             return mapper.writeValueAsString(materialExtraService.getMaterialExtra(id));
         } catch (JsonProcessingException e) {

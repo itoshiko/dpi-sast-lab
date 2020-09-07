@@ -280,4 +280,8 @@ public class RentalService {
         returnInfo.put("errInfo", "");
         return returnInfo;
     }
+
+    public void deleteAllByMaterialId(int id){
+
+    }
 }
