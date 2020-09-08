@@ -157,4 +157,73 @@ public class MaterialService {
         returnInfo.put("id", String.valueOf(material.getId()));
         return returnInfo;
     }
+
+    public HashMap<String, String> addTag(SysTag tag){
+        HashMap<String, String> returnInfo = new HashMap<>();
+        if(!materialMapper.isTagExists(tag.getTagName()).isEmpty()){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "duplicated tag name");
+            returnInfo.put("id", "");
+            return returnInfo;
+        }
+        try{
+            materialMapper.addTag(tag);
+        } catch(Exception e){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "unexpected error");
+            returnInfo.put("id", "");
+            return returnInfo;
+        }
+        returnInfo.put("success", "true");
+        returnInfo.put("errInfo", "");
+        returnInfo.put("id", String.valueOf(tag.getTagId()));
+        return returnInfo;
+    }
+
+    public HashMap<String, String> deleteTag(int id){
+        HashMap<String, String> returnInfo = new HashMap<String, String>();
+        if(materialMapper.selectTagById(id) == null){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid id");
+            return returnInfo;
+        }
+        try{
+            materialMapper.deleteTag(id);
+        } catch(Exception e){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "unexpected error");
+            return returnInfo;
+        }
+        returnInfo.put("success", "true");
+        returnInfo.put("errInfo", "");
+        return returnInfo;
+    }
+
+    public HashMap<String, String> modifyTagName(SysTag tag){
+        HashMap<String, String> returnInfo = new HashMap<String, String>();
+        if(materialMapper.selectTagById(tag.getTagId()) == null){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "invalid id");
+            return returnInfo;
+        }
+        try{
+            materialMapper.modifyTagName(tag);
+        } catch(Exception e){
+            returnInfo.put("success", "false");
+            returnInfo.put("errInfo", "unexpected error");
+            return returnInfo;
+        }
+        returnInfo.put("success", "true");
+        returnInfo.put("errInfo", "");
+        return returnInfo;
+    }
+
+    public ArrayList<SysTag> searchTags(String keyword){
+        try{
+            return materialMapper.searchTags(keyword);
+        } catch(Exception e){
+            return new ArrayList<SysTag>();
+        }
+    }
+
 }

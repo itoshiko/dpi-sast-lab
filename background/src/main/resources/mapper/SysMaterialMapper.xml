@@ -130,5 +130,40 @@
         WHERE id = #{id}
     </update>
 
+    <insert id="addTag" parameterType="SysTag" useGeneratedKeys="true" keyProperty="tagId">
+        INSERT INTO material.tag (name)
+        VALUES (#{tagName})
+    </insert>
+
+    <delete id="deleteTag" parameterType="int">
+        DELETE
+        FROM material.tag
+        WHERE id = #{id}
+    </delete>
+
+    <select id="searchTags" parameterType="String" resultMap="tagResultMap">
+        SELECT *
+        FROM material.tag
+        WHERE name REGEXP #{keyword}
+    </select>
+
+    <select id="isTagExists" parameterType="String" resultMap="tagResultMap">
+        SELECT *
+        FROM material.tag
+        WHERE UPPER(name) = UPPER(#{name})
+    </select>
+
+    <select id="isTagExists" parameterType="String" resultMap="tagResultMap">
+        SELECT *
+        FROM material.tag
+        WHERE id = #{id}
+    </select>
+
+    <update id="modifyTagName">
+        UPDATE material.tag
+        SET name = #{tagName}
+        WHERE id = #{tagId}
+    </update>
+
 
 </mapper>

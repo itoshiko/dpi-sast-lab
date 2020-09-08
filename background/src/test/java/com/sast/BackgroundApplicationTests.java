@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sast.material.mapper.RentalMapper;
+import com.sast.material.mapper.SysMaterialMapper;
 import com.sast.material.pojo.SysMaterial;
 import com.sast.material.pojo.SysTag;
 import com.sast.material.service.MaterialService;
@@ -30,8 +31,6 @@ import java.util.HashMap;
 class BackgroundApplicationTests {
 
     @Resource
-    SysUserService userService;
-    @Resource
     MaterialService materialService;
     @Resource
     NoticeService noticeService;
@@ -44,7 +43,7 @@ class BackgroundApplicationTests {
     @Resource
     MailUtil mailUtil;
     @Resource
-    RentalMapper rentalMapper;
+    SysMaterialMapper materialMapper;
 
     @Test
     void contextLoads() {
@@ -185,8 +184,13 @@ class BackgroundApplicationTests {
         System.out.println(StringUtil.checkPassword("AAaa22"));
         System.out.println(StringUtil.checkPassword("dwdas"));
         System.out.println(StringUtil.checkPassword("3243frfe#!!AA"));
-
     }
 
+    @Test
+    public void tagsTest(){
+        SysTag sysTag = new SysTag();
+        sysTag.setTagName("STM32");
+        System.out.println(materialService.addTag(sysTag));
+    }
 
 }

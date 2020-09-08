@@ -35,11 +35,16 @@ public interface SysMaterialMapper {
 
     void updateMaterial(SysMaterial material);
 
-    void addTag(@Param("tagName")String tagName);
+    void addTag(SysTag tag);
 
     void deleteTag(@Param("id") int id);
 
     ArrayList<SysTag> searchTags(@Param("keyword") String keyword);
 
+    SysTag selectTagById(@Param("id") int id);
+
+    void modifyTagName(SysTag tag);
+
+    ArrayList<SysTag> isTagExists(@Param("name") String name);
 
 }
