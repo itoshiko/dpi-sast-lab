@@ -47,4 +47,6 @@ public interface SysMaterialMapper {
 
     ArrayList<SysTag> isTagExists(@Param("name") String name);
 
+    boolean isTagExistsById(@Param("id") int id);
+
 }

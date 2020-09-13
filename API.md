@@ -406,7 +406,7 @@ param:{
     "total":, //总数量，int
     "remaining":, //剩余数量，int
     "storageLocation":"", //储存位置，String，可以为空
-    "tags":[] //标签，String数组，可以为空
+    "tags":[{"tagId":,"tagName":{}},{},{}] //标签，String数组，可以为空
 }
 ```
 

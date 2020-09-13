@@ -118,9 +118,11 @@ public class MaterialController {
     @PostMapping("/materials/add-tag")
     @ResponseBody
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
-    public String addTag(@RequestBody SysTag tag) {
+    public String addTag(@RequestBody HashMap<String, String> map) {
         try {
-            return mapper.writeValueAsString(materialService.addTag(tag));
+            SysTag newTag = new SysTag();
+            newTag.setTagName(map.get("tagName"));
+            return mapper.writeValueAsString(materialService.addTag(newTag));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return "failed";

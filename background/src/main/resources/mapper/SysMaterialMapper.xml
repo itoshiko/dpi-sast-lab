@@ -153,7 +153,7 @@
         WHERE UPPER(name) = UPPER(#{name})
     </select>
 
-    <select id="isTagExists" parameterType="String" resultMap="tagResultMap">
+    <select id="isTagExistsById" parameterType="int" resultType="boolean">
         SELECT *
         FROM material.tag
         WHERE id = #{id}

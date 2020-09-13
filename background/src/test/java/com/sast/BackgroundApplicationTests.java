@@ -188,9 +188,7 @@ class BackgroundApplicationTests {
 
     @Test
     public void tagsTest(){
-        SysTag sysTag = new SysTag();
-        sysTag.setTagName("STM32");
-        System.out.println(materialService.addTag(sysTag));
+        System.out.println(materialMapper.isTagExistsById(1));
     }
 
 }
