@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -158,6 +159,40 @@ public class MaterialService {
         return returnInfo;
     }
 
+    public int batchAddMaterial(ArrayList<SysMaterial> materialList){
+        if (materialList.isEmpty()) return 0;
+        ArrayList<SysMaterial> materialListFinal = new ArrayList<>();
+        ArrayList<SysTag> materialTags = searchTags("");
+        HashMap<String, Integer> tagMap = new HashMap<String, Integer>();
+        for(SysTag tag : materialTags){
+            tagMap.put(tag.getTagName(), tag.getTagId());
+        }
+        for(SysMaterial material : materialList){
+            if(material.getName().isEmpty()||material.getName()==null) {
+                continue;
+            }
+            if(material.getClassification().isEmpty()||material.getClassification()==null) {
+                continue;
+            }
+            if(material.getPrice() == 0){
+                material.setPrice(1);
+            }
+            if(material.getWarehousingDate() ==null) {
+                material.setWarehousingDate(new Date());
+            }
+            // TODO: 17/09/2020 tag的处理：不存在的tag
+            for(SysTag tag: material.getTags()){
+                if(!tagMap.containsKey(tag.getTagName())){
+
+                }
+                tag.setTagId(tagMap.get(tag.getTagName()));
+            }
+            materialMapper.addMaterial(material);
+            materialListFinal.add(material);
+        }
+        return materialListFinal.size();
+    }
+
     public HashMap<String, String> addTag(SysTag tag){
         HashMap<String, String> returnInfo = new HashMap<>();
         if(!materialMapper.isTagExists(tag.getTagName()).isEmpty()){
@@ -180,6 +215,7 @@ public class MaterialService {
         return returnInfo;
     }
 
+    // TODO: 17/09/2020 删除关联的物品的tag
     public HashMap<String, String> deleteTag(int id){
         HashMap<String, String> returnInfo = new HashMap<String, String>();
         if(materialMapper.selectTagById(id) == null){

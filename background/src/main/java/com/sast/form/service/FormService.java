@@ -41,6 +41,12 @@ public class FormService {
         return userDataListener.getList();
     }
 
+    public ArrayList<SysMaterial> importMaterialDataFromExcel(MultipartFile file) throws IOException {
+        MaterialDataListener materialDataListener = new MaterialDataListener(materialService);
+        EasyExcel.read(file.getInputStream(), SysMaterial.class, materialDataListener).sheet().doRead();
+        return materialDataListener.getList();
+    }
+
     public void writeDataToExcel(HttpServletResponse response, int type) throws IOException {
         //导出用户数据
         ArrayList result = null;
@@ -63,7 +69,7 @@ public class FormService {
             }
             else if (type == 2){
                 // 这里需要设置不关闭流
-                EasyExcel.write(response.getOutputStream(), SysMaterial.class).autoCloseStream(Boolean.FALSE).sheet("user")
+                EasyExcel.write(response.getOutputStream(), SysMaterial.class).autoCloseStream(Boolean.FALSE).sheet("material")
                         .doWrite(result);
             }
 

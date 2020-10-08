@@ -29,7 +29,7 @@ public class FormController {
         formService.writeDataToExcel(response, 1);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
+    //@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ROOT')")
     @GetMapping("materials/extract")
     @ResponseBody
     public void extractMaterialData(HttpServletResponse response) throws IOException {
